@@ -27,7 +27,7 @@ export function FarmerCard({ farmer }: FarmerCardProps) {
           <h3 className="font-semibold text-lg" data-testid={`text-farmer-name-${farmer.id}`}>
             {farmer.name}
           </h3>
-          {farmer.verified === 1 && (
+          {farmer.verified && (
             <Badge variant="secondary" className="ml-2 text-xs bg-green-100 text-green-700">
               Verified
             </Badge>

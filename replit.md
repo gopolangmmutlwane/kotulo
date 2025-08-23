@@ -1,6 +1,6 @@
 # Overview
 
-FarmFresh SA is a marketplace platform connecting South African farmers directly with consumers for fresh produce. The application allows users to browse and purchase fresh vegetables, quality meat, and dairy products from verified local farmers. The platform features farmer profiles, product catalogs with categories, shopping cart functionality, and an order management system.
+FarmFresh SA is a comprehensive South African farm-to-door marketplace platform that supports multiple user roles (Household Shoppers, B2B Buyers, Vendors/Farmers, Operations, Admin) with 60-minute delivery SLA capabilities. The platform features advanced B2B bulk ordering with invoicing, vendor marketplace functionality, real-time inventory management through product lots, micro-fulfillment hubs, cold-chain logistics capabilities, and geo-fenced service areas. The application is fully PWA-enabled and specifically designed for the South African market with multi-role user management and enterprise-grade logistics features.
 
 # User Preferences
 
@@ -26,9 +26,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Data Storage Solutions
 - **Database ORM**: Drizzle ORM configured for PostgreSQL with type-safe schema definitions
-- **Schema Design**: Relational schema with tables for farmers, products, users, and orders
-- **Migrations**: Drizzle-kit for database schema migrations and version control
-- **Current Implementation**: In-memory storage for development with seeded sample data
+- **Enhanced Schema**: Comprehensive relational schema supporting:
+  - Multi-role user system (household, B2B, vendor, operations, admin)
+  - Service areas with geo-fencing for delivery zones
+  - Micro-fulfillment hubs with capacity and location tracking
+  - Enhanced farmer profiles with commission rates and fulfillment preferences
+  - Advanced product catalog with lots, variants, grades, and inventory tracking
+  - B2B purchase orders with recurring schedules and payment terms
+  - Delivery tracking with real-time location and cold-chain monitoring
+  - SLA tracking and performance metrics
+- **Current Implementation**: In-memory storage with comprehensive seed data
 - **Production Ready**: PostgreSQL configuration via Neon Database serverless connection
 
 ## External Dependencies

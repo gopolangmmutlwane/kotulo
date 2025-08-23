@@ -1,10 +1,101 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertOrderSchema, ProductCategory } from "@shared/schema";
+import { insertOrderSchema, insertUserSchema, insertFarmerSchema, insertProductSchema, ProductCategory, UserRole, OrderStatus } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // === USERS ===
+  // Get all users
+  app.get("/api/users", async (req, res) => {
+    try {
+      const users = await storage.getUsers();
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  // Get user by id
+  app.get("/api/users/:id", async (req, res) => {
+    try {
+      const user = await storage.getUser(req.params.id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json(user);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Create user
+  app.post("/api/users", async (req, res) => {
+    try {
+      const validation = insertUserSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Invalid user data",
+          errors: validation.error.issues 
+        });
+      }
+
+      const user = await storage.createUser(validation.data);
+      res.status(201).json(user);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create user" });
+    }
+  });
+
+  // === SERVICE AREAS ===
+  // Get all service areas
+  app.get("/api/service-areas", async (req, res) => {
+    try {
+      const serviceAreas = await storage.getServiceAreas();
+      res.json(serviceAreas);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch service areas" });
+    }
+  });
+
+  // Get service area by id
+  app.get("/api/service-areas/:id", async (req, res) => {
+    try {
+      const serviceArea = await storage.getServiceArea(req.params.id);
+      if (!serviceArea) {
+        return res.status(404).json({ message: "Service area not found" });
+      }
+      res.json(serviceArea);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch service area" });
+    }
+  });
+
+  // === HUBS ===
+  // Get all hubs
+  app.get("/api/hubs", async (req, res) => {
+    try {
+      const hubs = await storage.getHubs();
+      res.json(hubs);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch hubs" });
+    }
+  });
+
+  // Get hub by id
+  app.get("/api/hubs/:id", async (req, res) => {
+    try {
+      const hub = await storage.getHub(req.params.id);
+      if (!hub) {
+        return res.status(404).json({ message: "Hub not found" });
+      }
+      res.json(hub);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch hub" });
+    }
+  });
+
+  // === FARMERS ===
   // Get all farmers
   app.get("/api/farmers", async (req, res) => {
     try {
@@ -25,6 +116,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(farmer);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch farmer" });
+    }
+  });
+
+  // Create farmer
+  app.post("/api/farmers", async (req, res) => {
+    try {
+      const validation = insertFarmerSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Invalid farmer data",
+          errors: validation.error.issues 
+        });
+      }
+
+      const farmer = await storage.createFarmer(validation.data);
+      res.status(201).json(farmer);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create farmer" });
     }
   });
 
@@ -68,6 +177,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(product);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch product" });
+    }
+  });
+
+  // Create product
+  app.post("/api/products", async (req, res) => {
+    try {
+      const validation = insertProductSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Invalid product data",
+          errors: validation.error.issues 
+        });
+      }
+
+      const product = await storage.createProduct(validation.data);
+      res.status(201).json(product);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create product" });
     }
   });
 

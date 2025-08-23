@@ -21,7 +21,7 @@ export function ProductCard({ product }: ProductCardProps) {
     addItem({
       id: product.id,
       name: product.name,
-      price: product.price,
+      price: product.retailPrice,
       unit: product.unit,
       image: product.image || undefined,
       farmerId: product.farmerId,
@@ -69,7 +69,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <Badge className={getCategoryColor(product.category)}>
             {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
           </Badge>
-          {product.organic === 1 && (
+          {product.organic && (
             <Badge variant="outline" className="text-green-600 border-green-600">
               Organic
             </Badge>
@@ -86,7 +86,7 @@ export function ProductCard({ product }: ProductCardProps) {
         
         <div className="flex items-center justify-between">
           <span className="text-lg font-bold text-farm-green" data-testid={`text-product-price-${product.id}`}>
-            {formatPriceWithUnit(product.price, product.unit)}
+            {formatPriceWithUnit(product.retailPrice, product.unit)}
           </span>
           
           <Button
@@ -110,13 +110,7 @@ export function ProductCard({ product }: ProductCardProps) {
           </Button>
         </div>
         
-        {product.stock !== null && product.stock < 10 && (
-          <div className="mt-2">
-            <Badge variant="outline" className="text-orange-600 border-orange-600">
-              Only {product.stock} left
-            </Badge>
-          </div>
-        )}
+        {/* Stock tracking will be handled by product lots in the enhanced system */}
       </CardContent>
     </Card>
   );

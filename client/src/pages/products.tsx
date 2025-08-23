@@ -31,9 +31,9 @@ function ProductsContent() {
     .sort((a, b) => {
       switch (sortBy) {
         case "price-low":
-          return parseFloat(a.price) - parseFloat(b.price);
+          return parseFloat(a.retailPrice) - parseFloat(b.retailPrice);
         case "price-high":
-          return parseFloat(b.price) - parseFloat(a.price);
+          return parseFloat(b.retailPrice) - parseFloat(a.retailPrice);
         case "name":
           return a.name.localeCompare(b.name);
         default:
