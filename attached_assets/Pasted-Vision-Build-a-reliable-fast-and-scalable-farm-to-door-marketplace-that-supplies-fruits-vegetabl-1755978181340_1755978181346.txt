@@ -1,0 +1,132 @@
+Vision
+
+Build a reliable, fast, and scalable farm-to-door marketplace that supplies fruits, vegetables, and meat to households (≤60‑minute delivery) and bulk buyers (supermarkets, restaurants, vendors). The platform must also let vendors and farmers advertise and sell their own products.
+
+Core User Roles
+
+Household Shopper – places on‑demand orders; expects real‑time tracking and delivery ≤60 minutes.
+
+Business Buyer (B2B) – supermarkets, restaurants, vendors; places scheduled or recurring bulk orders with invoicing and delivery windows.
+
+Vendor/Farmer – lists products, manages stock, prices, ads, and fulfillment preferences (consign to your hubs or self‑fulfill for local pickup/delivery).
+
+Operations – dispatchers, pickers, drivers, quality control, finance.
+
+Admin – compliance, catalog curation, dispute resolution, platform settings.
+
+Key Value Propositions
+
+Speed: 60‑minute SLA for household orders inside geo‑fenced service areas.
+
+Reliability: Live inventory, cold‑chain handling, proactive substitution rules, ETA updates.
+
+Scale: Scheduled bulk logistics, pallet/crate units, purchase orders, EDI/CSV imports.
+
+Marketplace: Vendors + farmers can advertise and sell; you earn commissions + ad revenue.
+
+Feature Set (MVP → v1.0)
+A) Catalog & Inventory
+
+Unified catalog for fruits, vegetables, meat with variants (grade, cut, weight band, organic).
+
+Lot‑level tracking (batch, harvest/pack date, expiry, temperature band).
+
+Real‑time stock syncing from hubs and vendor stores.
+
+Substitution policies (auto/ask/never) and equivalents mapping.
+
+B) Ordering Flows
+
+Households (On‑Demand):
+
+Service area check → inventory from nearest hub(s) → cart → time promise (≤60 min) → pay → live tracking.
+
+Smart pack sizes (e.g., 1kg, 2kg; meat by cut & weight).
+
+Add‑ons at checkout (sauces, herbs, sides).
+
+B2B (Bulk/Scheduled):
+
+Request‑for‑Quote (RFQ) or contract pricing.
+
+Purchase Orders (POs): pallets/crates/boxes; delivery windows; recurring schedules.
+
+Multi‑drop routes, dock scheduling, ASN/GRN documents; optional credit terms.
+
+Vendor/Farmer Sales:
+
+Self‑serve storefronts with tiered pricing (retail vs wholesale).
+
+Consign‑to‑hub or direct‑fulfill options.
+
+Ad placements (search, category, homepage tiles) with budget & targeting.
+
+C) Fulfillment & Logistics
+
+Micro‑fulfillment hubs (cold‑chain capable) + dark‑store picking for speed.
+
+Picker app: wave/batch picking, weight capture, photo QC, substitution prompts.
+
+Dispatch: auto‑assignment, batching, route optimization, driver app with turn‑by‑turn and proof‑of‑delivery.
+
+Temperature compliance: insulated totes, gel packs; hub sensors; chain‑of‑custody logs.
+
+D) Tracking & Notifications
+
+Real‑time map, ETA updates, order status events (Accepted → Picking → Picked → Out‑for‑delivery → Arrived → Delivered).
+
+SMS/WhatsApp/push notifications; driver contact masking; delivery notes & photos.
+
+E) Payments & Finance
+
+Cards, mobile wallets, EFT; split payments to vendors; escrow until delivery.
+
+B2B invoicing, credit limits, statements, partial fulfillment handling.
+
+Refunds/adjustments (weight variances), tips, promos, and gift credits.
+
+F) Reliability & Quality
+
+SLA engine with penalties & auto‑refund tiers.
+
+Shelf‑life rules: block items close to expiry for far ETAs.
+
+Forecasting to prevent stock‑outs; demand vs supply heatmaps.
+
+Service‑Level Architecture
+
+Frontends
+
+Web (Next.js) for shoppers and B2B buyers.
+
+Mobile apps (React Native) for shoppers & drivers.
+
+Vendor Portal (web) and Operations Console (internal).
+
+Backends
+
+API (Node.js/TypeScript + NestJS or FastAPI): GraphQL for read models, REST for commands.
+
+Services: Catalog, Inventory, Orders, Fulfillment, Dispatch, Payments, Vendors, Ads, Notifications, Analytics.
+
+Workers: ETA calculation, route optimization, SLA monitoring, invoicing, forecasting.
+
+Data
+
+PostgreSQL (OLTP) with row‑level security for vendors.
+
+Redis for sessions, rate limits, queues, and real‑time location.
+
+Object storage for images/PODs.
+
+Warehouse (BigQuery/Redshift) + dbt for analytics.
+
+Integrations
+
+Maps & distance matrix, SMS/WhatsApp, payment gateway, accounting (Xero/QuickBooks), optional EDI for large supermarkets.
+
+Scalability & Reliability
+
+Auto‑scaling containers, circuit breakers, idempotent command handlers, retries with backoff.
+
+Observability: metrics (SLIs/SLOs), tracing, alerting; audit logs.

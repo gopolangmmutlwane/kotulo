@@ -11,7 +11,7 @@ interface FarmerCardProps {
 }
 
 export function FarmerCard({ farmer }: FarmerCardProps) {
-  const rating = parseFloat(farmer.rating);
+  const rating = parseFloat(farmer.rating || "0");
   
   return (
     <Card className="hover:shadow-lg transition-shadow" data-testid={`card-farmer-${farmer.id}`}>

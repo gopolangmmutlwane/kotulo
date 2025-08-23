@@ -48,6 +48,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get featured products
+  app.get("/api/products/featured", async (req, res) => {
+    try {
+      const products = await storage.getFeaturedProducts();
+      res.json(products);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch featured products" });
+    }
+  });
+
   // Get product by id
   app.get("/api/products/:id", async (req, res) => {
     try {
@@ -58,16 +68,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(product);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch product" });
-    }
-  });
-
-  // Get featured products
-  app.get("/api/products/featured", async (req, res) => {
-    try {
-      const products = await storage.getFeaturedProducts();
-      res.json(products);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch featured products" });
     }
   });
 

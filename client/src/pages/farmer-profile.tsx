@@ -67,7 +67,7 @@ function FarmerProfileContent() {
     );
   }
 
-  const rating = parseFloat(farmer.rating);
+  const rating = parseFloat(farmer.rating || "0");
 
   return (
     <div className="min-h-screen bg-stone-50">

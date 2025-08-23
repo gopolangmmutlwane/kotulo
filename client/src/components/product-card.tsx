@@ -23,7 +23,7 @@ export function ProductCard({ product }: ProductCardProps) {
       name: product.name,
       price: product.price,
       unit: product.unit,
-      image: product.image,
+      image: product.image || undefined,
       farmerId: product.farmerId,
     });
     

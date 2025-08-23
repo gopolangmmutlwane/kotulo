@@ -202,6 +202,9 @@ export class MemStorage implements IStorage {
       reviewCount: 0,
       verified: 0,
       createdAt: new Date(),
+      description: insertFarmer.description || null,
+      phone: insertFarmer.phone || null,
+      avatar: insertFarmer.avatar || null,
     };
     this.farmers.set(id, farmer);
     return farmer;
@@ -235,6 +238,11 @@ export class MemStorage implements IStorage {
       ...insertProduct,
       id,
       createdAt: new Date(),
+      description: insertProduct.description || null,
+      image: insertProduct.image || null,
+      stock: insertProduct.stock || null,
+      featured: insertProduct.featured || null,
+      organic: insertProduct.organic || null,
     };
     this.products.set(id, product);
     return product;
@@ -254,6 +262,8 @@ export class MemStorage implements IStorage {
       ...insertUser,
       id,
       createdAt: new Date(),
+      phone: insertUser.phone || null,
+      address: insertUser.address || null,
     };
     this.users.set(id, user);
     return user;
@@ -274,6 +284,8 @@ export class MemStorage implements IStorage {
       id,
       status: "pending",
       createdAt: new Date(),
+      userId: insertOrder.userId || null,
+      customerPhone: insertOrder.customerPhone || null,
     };
     this.orders.set(id, order);
     return order;
