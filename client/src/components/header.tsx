@@ -15,10 +15,12 @@ export function Header() {
 
   const navigation = [
     { name: "Home", href: "/" },
-    { name: "Vegetables", href: "/products/vegetables" },
-    { name: "Meat", href: "/products/meat" },
-    { name: "Dairy", href: "/products/dairy" },
-    { name: "Farmers", href: "/products" },
+    { name: "Shop", href: "/products" },
+    { name: "Dashboard", href: "/dashboard" },
+    { name: "B2B", href: "/b2b" },
+    { name: "Vendor", href: "/vendor" },
+    { name: "Operations", href: "/operations" },
+    { name: "Admin", href: "/admin" },
   ];
 
   return (

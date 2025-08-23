@@ -39,10 +39,12 @@ function HomeContent() {
                     Start Shopping
                   </Button>
                 </Link>
-                <Button variant="outline" className="border-white text-white hover:bg-white hover:text-farm-green px-8 py-3 text-lg" data-testid="button-join-farmer">
-                  <UserPlus className="mr-2 h-5 w-5" />
-                  Join as Farmer
-                </Button>
+                <Link href="/dashboard">
+                  <Button variant="outline" className="border-white text-white hover:bg-white hover:text-farm-green px-8 py-3 text-lg" data-testid="button-marketplace-dashboard">
+                    <UserPlus className="mr-2 h-5 w-5" />
+                    Marketplace Dashboard
+                  </Button>
+                </Link>
               </div>
             </div>
             <div className="relative">
@@ -59,7 +61,7 @@ function HomeContent() {
       {/* Categories Section */}
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8">Shop by Category</h2>
+          <h2 className="text-3xl font-bold text-center mb-8">Comprehensive Marketplace Features</h2>
           <div className="grid md:grid-cols-3 gap-6">
             <CategoryCard
               title="Fresh Vegetables"
@@ -93,6 +95,35 @@ function HomeContent() {
               iconBgClass="bg-farm-gold"
               textColorClass="text-farm-gold"
             />
+          </div>
+          
+          {/* Marketplace Features Banner */}
+          <div className="mt-12 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl p-8">
+            <div className="text-center">
+              <h3 className="text-2xl font-bold mb-4">Multi-Role Marketplace Platform</h3>
+              <p className="text-lg mb-6">
+                Experience our comprehensive farm-to-door platform with advanced B2B ordering, vendor management, 
+                real-time logistics, and 60-minute delivery SLA.
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div>
+                  <div className="text-3xl font-bold">60min</div>
+                  <div className="text-sm opacity-90">Delivery SLA</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold">B2B</div>
+                  <div className="text-sm opacity-90">Bulk Ordering</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold">Hubs</div>
+                  <div className="text-sm opacity-90">Micro-Fulfillment</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold">5 Roles</div>
+                  <div className="text-sm opacity-90">User Types</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
