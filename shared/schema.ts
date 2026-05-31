@@ -106,6 +106,8 @@ export const products = pgTable("products", {
   organic: boolean("organic").default(false),
   substitutes: text("substitutes").array(), // Product IDs that can substitute
   isActive: boolean("is_active").default(true),
+  status: text("status").notNull().default("approved"), // 'pending', 'approved', 'rejected'
+  rejectionReason: text("rejection_reason"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
