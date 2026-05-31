@@ -26,7 +26,7 @@ export { upload };
 // Session configuration
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "farmharvest-secret-key-change-in-production",
+    secret: process.env.SESSION_SECRET || "kotulo-secret-key-change-in-production",
     resave: false,
     saveUninitialized: false,
     cookie: {
