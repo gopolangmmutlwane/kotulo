@@ -8,13 +8,26 @@ export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
+  password: text("password"), // Hashed password
   phone: text("phone"),
   address: text("address"),
-  role: text("role").notNull().default("household"), // 'household', 'b2b', 'vendor', 'operations', 'admin'
-  businessName: text("business_name"), // For B2B users
-  businessType: text("business_type"), // 'supermarket', 'restaurant', 'vendor'
+  role: text("role").notNull().default("household"), // 'household', 'b2b', 'vendor', 'farmer', 'operations', 'admin'
+  businessName: text("business_name"), // For B2B users, vendors, and farmers
+  businessType: text("business_type"), // 'supermarket', 'restaurant', 'vendor', 'farm'
   creditLimit: decimal("credit_limit", { precision: 10, scale: 2 }),
   isActive: boolean("is_active").default(true),
+  approvalStatus: text("approval_status").default("approved"), // 'pending', 'approved', 'rejected' - for vendors/farmers
+  // Application data for vendors/farmers
+  businessRegistrationNumber: text("business_registration_number"), // CIPC registration
+  taxId: text("tax_id"), // VAT/Tax number
+  businessAddress: text("business_address"), // Full business address
+  businessDescription: text("business_description"), // Business description
+  applicationDocuments: jsonb("application_documents"), // {license: "url", certificate: "url", etc.}
+  applicationSubmittedAt: timestamp("application_submitted_at"), // When application was submitted
+  emailVerified: boolean("email_verified").default(false),
+  emailVerificationToken: text("email_verification_token"),
+  passwordResetToken: text("password_reset_token"),
+  passwordResetExpires: timestamp("password_reset_expires"),
   lastLogin: timestamp("last_login"),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -182,6 +195,9 @@ export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
   lastLogin: true,
+  emailVerificationToken: true,
+  passwordResetToken: true,
+  passwordResetExpires: true,
 });
 
 export const insertServiceAreaSchema = createInsertSchema(serviceAreas).omit({
@@ -274,3 +290,13 @@ export const PurchaseOrderStatus = z.enum(['draft', 'sent', 'confirmed', 'delive
 export const PurchaseOrderType = z.enum(['scheduled', 'recurring', 'one_time']);
 export const PaymentTerms = z.enum(['net_30', 'net_15', 'cod', 'prepaid']);
 export const DeliveryStatus = z.enum(['pending', 'assigned', 'picked_up', 'in_transit', 'delivered', 'failed']);
+
+
+
+
+
+
+
+
+
+

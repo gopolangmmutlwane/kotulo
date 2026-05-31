@@ -1,4 +1,4 @@
-const CACHE_NAME = 'farmfresh-sa-v1';
+const CACHE_NAME = 'kotulo-v1';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -45,30 +45,31 @@ self.addEventListener('fetch', (event) => {
               <!DOCTYPE html>
               <html>
                 <head>
-                  <title>FarmFresh SA - Offline</title>
+                  <title>Kotulo - Offline</title>
                   <meta name="viewport" content="width=device-width, initial-scale=1.0">
                   <style>
                     body { 
                       font-family: Arial, sans-serif; 
                       text-align: center; 
                       padding: 50px;
-                      background: #f5f5f5;
+                      background: #F4EFD9;
                     }
                     .container {
-                      max-width: 400px;
+                      max-width: 420px;
                       margin: 0 auto;
-                      background: white;
-                      padding: 40px;
-                      border-radius: 10px;
-                      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                      background: #FFFFFF;
+                      padding: 36px;
+                      border-radius: 12px;
+                      box-shadow: 0 6px 30px rgba(16,32,16,0.08);
                     }
-                    h1 { color: #16A34A; margin-bottom: 20px; }
-                    p { color: #666; line-height: 1.5; }
+                   h1 { color: #1E5832; margin-bottom: 16px; } 
+                   h2 { color: #4F8F2F; margin-bottom: 12px; } 
+                   p { color: #55614F; line-height: 1.5; }
                   </style>
                 </head>
                 <body>
                   <div class="container">
-                    <h1>🌱 FarmFresh SA</h1>
+                    <h1>🌱 Kotulo</h1>
                     <h2>You're offline</h2>
                     <p>Please check your internet connection and try again.</p>
                   </div>

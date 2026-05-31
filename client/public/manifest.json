@@ -1,6 +1,6 @@
 {
-  "name": "FarmFresh SA",
-  "short_name": "FarmFresh",
+  "name": "Kotulo",
+  "short_name": "Kotulo",
   "description": "Fresh produce from South African farmers",
   "start_url": "/",
   "display": "standalone",

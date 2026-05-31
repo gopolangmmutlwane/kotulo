@@ -21,7 +21,7 @@ function FarmerProfileContent() {
   });
 
   const { data: products = [], isLoading: productsLoading } = useQuery<Product[]>({
-    queryKey: ["/api/products", `?farmerId=${farmerId}`],
+    queryKey: [`/api/products?farmerId=${farmerId}`],
     enabled: !!farmerId,
   });
 
@@ -31,17 +31,17 @@ function FarmerProfileContent() {
 
   if (farmerLoading) {
     return (
-      <div className="min-h-screen bg-stone-50">
+      <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="animate-pulse">
-            <div className="bg-white rounded-xl p-8 mb-8">
+            <div className="bg-card rounded-xl p-8 mb-8 border border-border">
               <div className="flex items-center space-x-6 mb-6">
-                <div className="w-24 h-24 bg-gray-200 rounded-full"></div>
+                <div className="w-24 h-24 bg-muted rounded-full"></div>
                 <div className="flex-1">
-                  <div className="h-8 bg-gray-200 rounded mb-2 w-64"></div>
-                  <div className="h-4 bg-gray-200 rounded mb-2 w-48"></div>
-                  <div className="h-4 bg-gray-200 rounded w-32"></div>
+                  <div className="h-8 bg-muted rounded mb-2 w-64"></div>
+                  <div className="h-4 bg-muted rounded mb-2 w-48"></div>
+                  <div className="h-4 bg-muted rounded w-32"></div>
                 </div>
               </div>
             </div>
@@ -54,11 +54,11 @@ function FarmerProfileContent() {
 
   if (!farmer) {
     return (
-      <div className="min-h-screen bg-stone-50">
+      <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Farmer not found</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-4">Farmer not found</h1>
             <Button onClick={() => window.history.back()}>Go Back</Button>
           </div>
         </div>
@@ -70,7 +70,7 @@ function FarmerProfileContent() {
   const rating = parseFloat(farmer.rating || "0");
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="container mx-auto px-4 py-8">
@@ -88,17 +88,17 @@ function FarmerProfileContent() {
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-2">
                   <CardTitle className="text-2xl" data-testid="text-farmer-name">{farmer.name}</CardTitle>
-                  {farmer.verified === 1 && (
-                    <Badge className="bg-green-100 text-green-700">
+                  {farmer.verified === true && (
+                    <Badge className="bg-primary/10 text-primary">
                       <Shield className="w-3 h-3 mr-1" />
                       Verified
                     </Badge>
                   )}
                 </div>
                 
-                <p className="text-lg text-gray-600 mb-2" data-testid="text-farmer-type">{farmer.farmType}</p>
+                <p className="text-lg text-muted-foreground mb-2" data-testid="text-farmer-type">{farmer.farmType}</p>
                 
-                <div className="flex items-center space-x-4 text-sm text-gray-500 mb-4">
+                <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-4">
                   <span className="flex items-center">
                     <MapPin className="w-4 h-4 mr-1" />
                     {farmer.location}, {farmer.province}
@@ -107,7 +107,7 @@ function FarmerProfileContent() {
                 
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center">
-                    <div className="flex text-yellow-400 mr-2">
+                    <div className="flex text-secondary-foreground mr-2">
                       {Array.from({ length: 5 }, (_, i) => (
                         <Star
                           key={i}
@@ -117,7 +117,7 @@ function FarmerProfileContent() {
                         />
                       ))}
                     </div>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-muted-foreground">
                       {rating.toFixed(1)} ({farmer.reviewCount} reviews)
                     </span>
                   </div>
@@ -142,7 +142,7 @@ function FarmerProfileContent() {
           </CardHeader>
           {farmer.description && (
             <CardContent>
-              <p className="text-gray-600" data-testid="text-farmer-description">
+              <p className="text-muted-foreground" data-testid="text-farmer-description">
                 {farmer.description}
               </p>
             </CardContent>
@@ -156,19 +156,19 @@ function FarmerProfileContent() {
           {productsLoading ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="bg-white rounded-xl shadow-sm animate-pulse">
-                  <div className="w-full h-48 bg-gray-200 rounded-t-xl"></div>
+                <div key={i} className="bg-card rounded-xl shadow-sm animate-pulse border border-border">
+                  <div className="w-full h-48 bg-muted rounded-t-xl"></div>
                   <div className="p-4">
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-6 bg-gray-200 rounded"></div>
+                    <div className="h-4 bg-muted rounded mb-2"></div>
+                    <div className="h-3 bg-muted rounded mb-2"></div>
+                    <div className="h-6 bg-muted rounded"></div>
                   </div>
                 </div>
               ))}
             </div>
           ) : products.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-lg">
-              <p className="text-gray-500">This farmer hasn't listed any products yet.</p>
+            <div className="text-center py-12 bg-card rounded-lg border border-border">
+              <p className="text-muted-foreground">This farmer hasn't listed any products yet.</p>
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

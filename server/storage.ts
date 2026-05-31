@@ -7,6 +7,8 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: string, updates: Partial<User>): Promise<User | undefined>;
+  deleteUser(id: string): Promise<boolean>;
   
   // Service Areas
   getServiceAreas(): Promise<ServiceArea[]>;
@@ -26,11 +28,17 @@ export interface IStorage {
   getProduct(id: string): Promise<Product | undefined>;
   getFeaturedProducts(): Promise<Product[]>;
   createProduct(product: InsertProduct): Promise<Product>;
+  updateProduct(id: string, updates: Partial<Product>): Promise<Product | undefined>;
+  deleteProduct(id: string): Promise<boolean>;
   
   // Orders
   getOrders(): Promise<Order[]>;
   getOrder(id: string): Promise<Order | undefined>;
   createOrder(order: InsertOrder): Promise<Order>;
+
+  // Platform Config
+  getPlatformConfig(): Promise<Record<string, any>>;
+  setPlatformConfig(config: Record<string, any>): Promise<Record<string, any>>;
 }
 
 export class MemStorage implements IStorage {
@@ -40,6 +48,7 @@ export class MemStorage implements IStorage {
   private farmers: Map<string, Farmer>;
   private products: Map<string, Product>;
   private orders: Map<string, Order>;
+  private platformConfig: Record<string, any>;
 
   constructor() {
     this.users = new Map();
@@ -48,6 +57,7 @@ export class MemStorage implements IStorage {
     this.farmers = new Map();
     this.products = new Map();
     this.orders = new Map();
+    this.platformConfig = {};
     
     // Seed with sample data
     this.seedData();
@@ -91,35 +101,78 @@ export class MemStorage implements IStorage {
     // Sample users
     const user1: User = {
       id: "user-1",
-      email: "thabo@organicfarm.co.za",
-      name: "Thabo Mthembu",
-      phone: "+27 82 123 4567",
+      email: "sophy@organicfarm.co.za",
+      name: "Sophy Kgoahla",
+      password: null,
+      phone: "+27 71 377 1455",
       address: null,
-      role: "vendor",
-      businessName: "Thabo's Organic Farm",
-      businessType: null,
+      role: "farmer",
+      businessName: "Sophy's Organic Farm",
+      businessType: "farm",
       creditLimit: null,
       isActive: true,
+      approvalStatus: "approved",
+      businessRegistrationNumber: null,
+      taxId: null,
+      businessAddress: null,
+      businessDescription: null,
+      applicationDocuments: null,
+      applicationSubmittedAt: null,
+      emailVerified: true,
+      emailVerificationToken: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
       lastLogin: null,
       createdAt: new Date(),
     };
 
     this.users.set(user1.id, user1);
 
+    // Admin user - persists across server restarts
+    // Password: KotuloFarm@25 (hashed with bcrypt)
+    const adminUser: User = {
+      id: "admin-1", // Fixed ID for consistency
+      name: "Kotulo",
+      email: "gopolang@kotulo.co.za",
+      password: "$2b$10$LDCdE7sCSXfld8rBYT.YIuB4y63tykMq0NG8oVdR5KLG5cV8/Vbtu",
+      phone: null,
+      address: null,
+      role: "admin",
+      businessName: null,
+      businessType: null,
+      creditLimit: null,
+      isActive: true,
+      approvalStatus: "approved",
+      businessRegistrationNumber: null,
+      taxId: null,
+      businessAddress: null,
+      businessDescription: null,
+      applicationDocuments: null,
+      applicationSubmittedAt: null,
+      emailVerified: true,
+      emailVerificationToken: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      lastLogin: null,
+      createdAt: new Date(),
+    };
+
+    this.users.set(adminUser.id, adminUser);
+
     // Sample farmers
     const farmer1: Farmer = {
       id: "farmer-1",
       userId: "user-1",
-      name: "Thabo Mthembu",
-      email: "thabo@organicfarm.co.za",
-      phone: "+27 82 123 4567",
-      location: "Johannesburg",
-      province: "Gauteng",
-      description: "Organic vegetable farming for over 15 years",
-      farmType: "Organic Vegetable Farm",
+      name: "Sophy Kgoahla",
+      email: "sophy@organicfarm.co.za",
+      phone: "+27 71 377 1455",
+      location: "Marapyane",
+      province: "Mpumalanga",
+      description: "Organic vegetable and herb farming with a passion for fresh, sustainable produce",
+      farmType: "Organic Vegetable & Herb Farm",
       rating: "4.8",
       reviewCount: 124,
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150",
+      avatar: "/images/Sophy.jpeg",
       verified: true,
       consignToHub: false,
       selfFulfill: true,
@@ -131,16 +184,16 @@ export class MemStorage implements IStorage {
     const farmer2: Farmer = {
       id: "farmer-2",
       userId: null,
-      name: "Sarah van der Merwe",
-      email: "sarah@stellenbosch-dairy.co.za",
-      phone: "+27 84 987 6543",
-      location: "Stellenbosch",
-      province: "Western Cape",
+      name: "Tefo Mmutlwane",
+      email: "Tefo.mmutlwane@gmail.com",
+      phone: "+27 78 2931034",
+      location: "Nelspruit",
+      province: "Mpumalanga",
       description: "Family-owned dairy and livestock farm",
       farmType: "Dairy & Livestock Farm",
       rating: "4.9",
       reviewCount: 89,
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150",
+      avatar: "/images/tefo.jpeg",
       verified: true,
       consignToHub: true,
       selfFulfill: false,
@@ -152,16 +205,16 @@ export class MemStorage implements IStorage {
     const farmer3: Farmer = {
       id: "farmer-3",
       userId: null,
-      name: "Pieter Botha",
-      email: "pieter@freestatefarm.co.za",
-      phone: "+27 83 456 7890",
-      location: "Bloemfontein",
-      province: "Free State",
-      description: "Mixed farming with vegetables and livestock",
+      name: "Gopolang mmutlwane",
+      email: "gopolang@farmharvest.coza",
+      phone: "+27 66 230 5349",
+      location: "Johannesburg",
+      province: "Gauteng",
+      description: "Hydroponic farming with vegetables and livestock",
       farmType: "Mixed Farming",
       rating: "4.6",
       reviewCount: 67,
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150",
+      avatar: "/images/Gopolang.jpeg",
       verified: true,
       consignToHub: false,
       selfFulfill: true,
@@ -337,12 +390,44 @@ export class MemStorage implements IStorage {
     const user: User = {
       ...insertUser,
       id,
+      password: insertUser.password ?? null,
+      phone: insertUser.phone ?? null,
+      address: insertUser.address ?? null,
+      role: insertUser.role ?? "household",
+      businessName: insertUser.businessName ?? null,
+      businessType: insertUser.businessType ?? null,
+      creditLimit: insertUser.creditLimit ?? null,
       isActive: insertUser.isActive ?? true,
+      approvalStatus: (insertUser as any).approvalStatus ?? "approved",
+      businessRegistrationNumber: (insertUser as any).businessRegistrationNumber ?? null,
+      taxId: (insertUser as any).taxId ?? null,
+      businessAddress: (insertUser as any).businessAddress ?? null,
+      businessDescription: (insertUser as any).businessDescription ?? null,
+      applicationDocuments: (insertUser as any).applicationDocuments ?? null,
+      applicationSubmittedAt: (insertUser as any).applicationSubmittedAt ?? null,
+      emailVerified: (insertUser as any).emailVerified ?? false,
+      emailVerificationToken: (insertUser as any).emailVerificationToken ?? null,
+      passwordResetToken: (insertUser as any).passwordResetToken ?? null,
+      passwordResetExpires: (insertUser as any).passwordResetExpires ?? null,
       lastLogin: null,
       createdAt: new Date(),
     };
     this.users.set(id, user);
     return user;
+  }
+
+  async updateUser(id: string, updates: Partial<User>): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) {
+      return undefined;
+    }
+    const updatedUser = { ...user, ...updates };
+    this.users.set(id, updatedUser);
+    return updatedUser;
+  }
+
+  async deleteUser(id: string): Promise<boolean> {
+    return this.users.delete(id);
   }
 
   // Service Areas
@@ -377,6 +462,10 @@ export class MemStorage implements IStorage {
     const farmer: Farmer = {
       ...insertFarmer,
       id,
+      userId: insertFarmer.userId ?? null,
+      phone: insertFarmer.phone ?? null,
+      description: insertFarmer.description ?? null,
+      avatar: insertFarmer.avatar ?? null,
       rating: "0",
       reviewCount: 0,
       verified: insertFarmer.verified ?? false,
@@ -419,6 +508,16 @@ export class MemStorage implements IStorage {
     const product: Product = {
       ...insertProduct,
       id,
+      description: insertProduct.description ?? null,
+      subcategory: insertProduct.subcategory ?? null,
+      grade: insertProduct.grade ?? null,
+      weight: insertProduct.weight ?? null,
+      wholesalePrice: insertProduct.wholesalePrice ?? null,
+      minOrderQty: insertProduct.minOrderQty ?? null,
+      maxOrderQty: insertProduct.maxOrderQty ?? null,
+      shelfLifeDays: insertProduct.shelfLifeDays ?? null,
+      temperatureRange: insertProduct.temperatureRange ?? null,
+      image: insertProduct.image ?? null,
       isActive: insertProduct.isActive ?? true,
       featured: insertProduct.featured ?? false,
       organic: insertProduct.organic ?? false,
@@ -427,6 +526,20 @@ export class MemStorage implements IStorage {
     };
     this.products.set(id, product);
     return product;
+  }
+
+  async updateProduct(id: string, updates: Partial<Product>): Promise<Product | undefined> {
+    const product = this.products.get(id);
+    if (!product) {
+      return undefined;
+    }
+    const updatedProduct = { ...product, ...updates };
+    this.products.set(id, updatedProduct);
+    return updatedProduct;
+  }
+
+  async deleteProduct(id: string): Promise<boolean> {
+    return this.products.delete(id);
   }
 
   // Orders
@@ -438,13 +551,34 @@ export class MemStorage implements IStorage {
     return this.orders.get(id);
   }
 
+  // Platform Config
+  async getPlatformConfig(): Promise<Record<string, any>> {
+    return { ...this.platformConfig };
+  }
+
+  async setPlatformConfig(config: Record<string, any>): Promise<Record<string, any>> {
+    this.platformConfig = { ...this.platformConfig, ...config };
+    return { ...this.platformConfig };
+  }
+
   async createOrder(insertOrder: InsertOrder): Promise<Order> {
     const id = randomUUID();
     const order: Order = {
       ...insertOrder,
       id,
+      userId: insertOrder.userId ?? null,
       type: insertOrder.type ?? "household",
-      deliveryAddress: insertOrder.deliveryAddress || insertOrder.customerAddress,
+      customerPhone: insertOrder.customerPhone ?? null,
+      deliveryLatitude: insertOrder.deliveryLatitude ?? null,
+      deliveryLongitude: insertOrder.deliveryLongitude ?? null,
+      serviceAreaId: insertOrder.serviceAreaId ?? null,
+      hubId: insertOrder.hubId ?? null,
+      deliveryFee: insertOrder.deliveryFee ?? null,
+      deliveryTimeSlot: insertOrder.deliveryTimeSlot ?? null,
+      promisedDelivery: insertOrder.promisedDelivery ?? null,
+      actualDelivery: insertOrder.actualDelivery ?? null,
+      paymentMethod: insertOrder.paymentMethod ?? null,
+      specialInstructions: insertOrder.specialInstructions ?? null,
       subtotal: insertOrder.subtotal || insertOrder.total,
       status: "pending",
       slaStatus: "on_time",

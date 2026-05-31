@@ -70,7 +70,6 @@ function CheckoutContent() {
 
   const onSubmit = (data: CheckoutFormData) => {
     const orderData: InsertOrder = {
-      ...data,
       items: items.map(item => ({
         productId: item.id,
         name: item.name,
@@ -78,6 +77,11 @@ function CheckoutContent() {
         price: item.price,
         unit: item.unit,
       })),
+      customerEmail: data.customerEmail,
+      customerName: data.customerName,
+      customerPhone: data.customerPhone,
+      deliveryAddress: data.customerAddress,
+      subtotal: totalPrice.toString(),
       total: totalPrice.toString(),
     };
 
@@ -86,22 +90,22 @@ function CheckoutContent() {
 
   if (orderCompleted) {
     return (
-      <div className="min-h-screen bg-stone-50">
+      <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-8">
           <Card className="max-w-md mx-auto text-center">
             <CardContent className="pt-6">
-              <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+              <CheckCircle className="h-16 w-16 text-primary mx-auto mb-4" />
               <h1 className="text-2xl font-bold mb-2">Order Placed!</h1>
-              <p className="text-gray-600 mb-4">
+              <p className="text-muted-foreground mb-4">
                 Your order #{orderId} has been placed successfully.
               </p>
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-sm text-muted-foreground mb-6">
                 You will receive an email confirmation shortly.
               </p>
               <Button
                 onClick={() => window.location.href = "/"}
-                className="w-full bg-farm-green hover:bg-green-700"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 data-testid="button-continue-shopping"
               >
                 Continue Shopping
@@ -116,18 +120,18 @@ function CheckoutContent() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-stone-50">
+      <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-8">
           <Card className="max-w-md mx-auto text-center">
             <CardContent className="pt-6">
               <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
-              <p className="text-gray-600 mb-6">
+              <p className="text-muted-foreground mb-6">
                 Add some products to your cart before checking out.
               </p>
               <Button
                 onClick={() => window.location.href = "/products"}
-                className="bg-farm-green hover:bg-green-700"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 data-testid="button-shop-now"
               >
                 Shop Now
@@ -141,7 +145,7 @@ function CheckoutContent() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="container mx-auto px-4 py-8">
@@ -165,7 +169,7 @@ function CheckoutContent() {
                       />
                       <div>
                         <h4 className="font-medium" data-testid={`text-checkout-item-name-${item.id}`}>{item.name}</h4>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-muted-foreground">
                           {item.quantity} × {formatPrice(item.price)}/{item.unit}
                         </p>
                       </div>
@@ -186,7 +190,7 @@ function CheckoutContent() {
                 </div>
                 <div className="flex justify-between">
                   <span>Delivery</span>
-                  <span className="text-green-600">Free</span>
+                  <span className="text-primary">Free</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between text-lg font-bold">
@@ -267,29 +271,29 @@ function CheckoutContent() {
 
                   <Separator className="my-6" />
                   
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="bg-muted p-4 rounded-lg">
                     <div className="flex items-center space-x-2 mb-2">
-                      <Truck className="h-5 w-5 text-green-600" />
+                      <Truck className="h-5 w-5 text-primary" />
                       <span className="font-medium">Free Delivery</span>
                     </div>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">
                       Your order will be delivered within 1-2 business days.
                     </p>
                   </div>
                   
-                  <div className="bg-yellow-50 p-4 rounded-lg">
+                  <div className="bg-secondary/30 p-4 rounded-lg">
                     <div className="flex items-center space-x-2 mb-2">
-                      <CreditCard className="h-5 w-5 text-yellow-600" />
+                      <CreditCard className="h-5 w-5 text-secondary-foreground" />
                       <span className="font-medium">Payment on Delivery</span>
                     </div>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">
                       Pay with cash or card when your order arrives.
                     </p>
                   </div>
                   
                   <Button
                     type="submit"
-                    className="w-full bg-farm-green hover:bg-green-700 text-white py-3"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3"
                     disabled={createOrderMutation.isPending}
                     data-testid="button-place-order"
                   >

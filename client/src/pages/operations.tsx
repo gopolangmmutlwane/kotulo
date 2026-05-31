@@ -1,25 +1,49 @@
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "wouter";
+import type { Order, Hub, ServiceArea } from "@shared/schema";
 import { 
   Truck, 
   MapPin, 
   Package, 
   Clock, 
-  Users, 
-  AlertTriangle,
   CheckCircle,
+  AlertTriangle,
   Navigation,
   Thermometer
 } from "lucide-react";
 
 export default function Operations() {
+  const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
+    queryKey: ["/api/orders"],
+  });
+
+  const { data: hubs = [], isLoading: hubsLoading } = useQuery<Hub[]>({
+    queryKey: ["/api/hubs"],
+  });
+
+  const { data: serviceAreas = [], isLoading: areasLoading } = useQuery<ServiceArea[]>({
+    queryKey: ["/api/service-areas"],
+  });
+
+  const activeOrders = orders.filter(o => o.status !== "delivered" && o.status !== "cancelled");
+  const deliveredOrders = orders.filter(o => o.status === "delivered");
+  const lateOrders = orders.filter(o => o.slaStatus === "late" || o.slaStatus === "failed");
+  const onTimeOrders = orders.filter(o => o.slaStatus === "on_time" && o.status === "delivered");
+  const slaRate = deliveredOrders.length > 0
+    ? Math.round((onTimeOrders.length / deliveredOrders.length) * 100)
+    : 0;
+  const avgHubUtilization = hubs.length > 0
+    ? Math.round(hubs.reduce((sum, h) => sum + ((h.currentLoad ?? 0) / (h.capacity || 1)) * 100, 0) / hubs.length)
+    : 0;
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white dark:from-orange-950 dark:to-gray-900">
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="bg-white dark:bg-gray-800 shadow-sm border-b">
+      <nav className="bg-card shadow-sm border-b border-border">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -27,13 +51,13 @@ export default function Operations() {
                 <Button variant="outline" size="sm">← Dashboard</Button>
               </Link>
               <div className="flex items-center space-x-2">
-                <Truck className="w-6 h-6 text-orange-600" />
+                <Truck className="w-6 h-6 text-farm-brown" />
                 <span className="font-bold text-xl">Operations Center</span>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <Badge variant="outline">Operations Manager</Badge>
-              <Badge className="bg-orange-600">Live Monitoring</Badge>
+              <Badge className="bg-farm-brown">Live Monitoring</Badge>
             </div>
           </div>
         </div>
@@ -44,37 +68,37 @@ export default function Operations() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardContent className="p-6 text-center">
-              <Truck className="w-8 h-8 text-orange-600 mx-auto mb-2" />
+              <Truck className="w-8 h-8 text-farm-brown mx-auto mb-2" />
               <h3 className="font-semibold mb-1">Active Deliveries</h3>
-              <p className="text-2xl font-bold text-orange-600">23</p>
-              <p className="text-sm text-gray-600">2 delayed</p>
+              <p className="text-2xl font-bold text-farm-brown">{activeOrders.length}</p>
+              <p className="text-sm text-muted-foreground">{lateOrders.length} delayed</p>
             </CardContent>
           </Card>
           
           <Card>
             <CardContent className="p-6 text-center">
-              <Clock className="w-8 h-8 text-green-600 mx-auto mb-2" />
+              <Clock className="w-8 h-8 text-primary mx-auto mb-2" />
               <h3 className="font-semibold mb-1">SLA Performance</h3>
-              <p className="text-2xl font-bold text-green-600">94%</p>
-              <p className="text-sm text-gray-600">60-min deliveries</p>
+              <p className="text-2xl font-bold text-primary">{slaRate}%</p>
+              <p className="text-sm text-muted-foreground">60-min deliveries</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="p-6 text-center">
-              <Package className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+              <Package className="w-8 h-8 text-accent mx-auto mb-2" />
               <h3 className="font-semibold mb-1">Hub Capacity</h3>
-              <p className="text-2xl font-bold text-blue-600">68%</p>
-              <p className="text-sm text-gray-600">Average utilization</p>
+              <p className="text-2xl font-bold text-accent">{avgHubUtilization}%</p>
+              <p className="text-sm text-muted-foreground">Average utilization</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="p-6 text-center">
-              <Users className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-              <h3 className="font-semibold mb-1">Drivers Online</h3>
-              <p className="text-2xl font-bold text-purple-600">15</p>
-              <p className="text-sm text-gray-600">Peak hours</p>
+              <CheckCircle className="w-8 h-8 text-farm-brown mx-auto mb-2" />
+              <h3 className="font-semibold mb-1">Total Orders</h3>
+              <p className="text-2xl font-bold text-farm-brown">{orders.length}</p>
+              <p className="text-sm text-muted-foreground">{deliveredOrders.length} delivered</p>
             </CardContent>
           </Card>
         </div>
@@ -91,297 +115,208 @@ export default function Operations() {
           <TabsContent value="deliveries" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Live Delivery Tracking</h2>
-              <Button data-testid="button-dispatch-driver">Dispatch Driver</Button>
             </div>
 
-            <div className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="flex items-center space-x-2">
-                        <Navigation className="w-5 h-5" />
-                        <span>Delivery #DEL-2024-089</span>
-                      </CardTitle>
-                      <CardDescription>Driver: Sipho Mthembu • Vehicle: VAN-003</CardDescription>
-                    </div>
-                    <Badge className="bg-green-100 text-green-700">In Transit</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
-                    <div>
-                      <span className="text-gray-600">Order:</span>
-                      <p className="font-semibold">ORD-2024-156</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">ETA:</span>
-                      <p className="font-semibold text-green-600">8 minutes</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Distance:</span>
-                      <p className="font-semibold">2.3 km</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Temperature:</span>
-                      <p className="font-semibold">3.2°C</p>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm">Delivery Progress</span>
-                    <span className="text-sm text-green-600">85%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                    <div className="bg-green-500 h-2 rounded-full" style={{ width: '85%' }}></div>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button size="sm" variant="outline" data-testid="button-track-live">
-                      <MapPin className="w-4 h-4 mr-1" />
-                      Live Location
-                    </Button>
-                    <Button size="sm" variant="outline" data-testid="button-call-driver">Call Driver</Button>
-                    <Button size="sm" variant="outline" data-testid="button-notify-customer">Notify Customer</Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="flex items-center space-x-2">
-                        <AlertTriangle className="w-5 h-5 text-red-500" />
-                        <span>Delivery #DEL-2024-087</span>
-                      </CardTitle>
-                      <CardDescription>Driver: Maria Santos • Vehicle: VAN-001</CardDescription>
-                    </div>
-                    <Badge variant="outline" className="bg-red-50 text-red-700">Delayed</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
-                    <div>
-                      <span className="text-gray-600">Order:</span>
-                      <p className="font-semibold">ORD-2024-154</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">ETA:</span>
-                      <p className="font-semibold text-red-600">15 minutes late</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Distance:</span>
-                      <p className="font-semibold">0.8 km</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Issue:</span>
-                      <p className="font-semibold text-red-600">Traffic delay</p>
-                    </div>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button size="sm" data-testid="button-escalate">Escalate Issue</Button>
-                    <Button size="sm" variant="outline" data-testid="button-reassign">Reassign Driver</Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="flex items-center space-x-2">
-                        <CheckCircle className="w-5 h-5 text-green-500" />
-                        <span>Delivery #DEL-2024-088</span>
-                      </CardTitle>
-                      <CardDescription>Driver: John Mitchell • Vehicle: VAN-002</CardDescription>
-                    </div>
-                    <Badge className="bg-green-100 text-green-700">Delivered</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
-                    <div>
-                      <span className="text-gray-600">Order:</span>
-                      <p className="font-semibold">ORD-2024-155</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Delivered:</span>
-                      <p className="font-semibold text-green-600">2 min early</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Customer:</span>
-                      <p className="font-semibold">J. Smith</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Signature:</span>
-                      <p className="font-semibold text-green-600">Confirmed</p>
-                    </div>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button size="sm" variant="outline" data-testid="button-proof-delivery">View Proof</Button>
-                    <Button size="sm" variant="outline" data-testid="button-customer-feedback">Feedback</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            {ordersLoading ? (
+              <p className="text-muted-foreground text-center py-8">Loading orders...</p>
+            ) : orders.length === 0 ? (
+              <Card><CardContent className="p-8 text-center">
+                <p className="text-muted-foreground">No orders to display.</p>
+              </CardContent></Card>
+            ) : (
+              <div className="space-y-4">
+                {orders.map(order => {
+                  const isLate = order.slaStatus === "late" || order.slaStatus === "failed";
+                  const isDelivered = order.status === "delivered";
+                  return (
+                    <Card key={order.id}>
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle className="flex items-center space-x-2">
+                              {isDelivered ? (
+                                <CheckCircle className="w-5 h-5 text-primary" />
+                              ) : isLate ? (
+                                <AlertTriangle className="w-5 h-5 text-destructive" />
+                              ) : (
+                                <Navigation className="w-5 h-5" />
+                              )}
+                              <span>Order #{order.id.slice(0, 8).toUpperCase()}</span>
+                            </CardTitle>
+                            <CardDescription>{order.customerName} · {order.customerEmail}</CardDescription>
+                          </div>
+                          <Badge
+                            variant={isDelivered ? "default" : "outline"}
+                            className={isLate ? "bg-destructive/10 text-destructive" : isDelivered ? "bg-primary/10 text-primary" : "bg-secondary/20"}
+                          >
+                            {order.status}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-3">
+                          <div>
+                            <span className="text-muted-foreground">Total:</span>
+                            <p className="font-semibold text-primary">R{parseFloat(order.total as any).toFixed(2)}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Items:</span>
+                            <p className="font-semibold">{Array.isArray(order.items) ? (order.items as any[]).length : 0}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">SLA:</span>
+                            <p className={`font-semibold ${isLate ? "text-destructive" : "text-primary"}`}>
+                              {order.slaStatus || "on_time"}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Placed:</span>
+                            <p className="font-semibold">
+                              {order.createdAt ? new Date(order.createdAt as any).toLocaleDateString() : "N/A"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          <MapPin className="w-4 h-4 inline mr-1" />
+                          {order.deliveryAddress}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
           </TabsContent>
 
           {/* Micro Hubs */}
           <TabsContent value="hubs" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Micro-Fulfillment Hubs</h2>
-              <Button data-testid="button-add-hub">Add New Hub</Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle>Johannesburg Micro-Hub</CardTitle>
-                      <CardDescription>123 Fresh Market St, Johannesburg</CardDescription>
-                    </div>
-                    <Badge className="bg-green-100 text-green-700">Active</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-600">Capacity:</span>
-                        <p className="font-semibold">1000 units</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Current Load:</span>
-                        <p className="font-semibold">680 units</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Temperature:</span>
-                        <p className="font-semibold text-blue-600">
-                          <Thermometer className="w-4 h-4 inline mr-1" />
-                          2.8°C
-                        </p>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Staff Online:</span>
-                        <p className="font-semibold">8/10</p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Capacity Utilization</span>
-                        <span>68%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-blue-500 h-2 rounded-full" style={{ width: '68%' }}></div>
-                      </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button size="sm" variant="outline" data-testid="button-hub-details">View Details</Button>
-                      <Button size="sm" variant="outline" data-testid="button-hub-inventory">Inventory</Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle>Cape Town Micro-Hub</CardTitle>
-                      <CardDescription>456 Coastal Ave, Cape Town</CardDescription>
-                    </div>
-                    <Badge className="bg-green-100 text-green-700">Active</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-600">Capacity:</span>
-                        <p className="font-semibold">800 units</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Current Load:</span>
-                        <p className="font-semibold">520 units</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Temperature:</span>
-                        <p className="font-semibold text-blue-600">
-                          <Thermometer className="w-4 h-4 inline mr-1" />
-                          3.1°C
-                        </p>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Staff Online:</span>
-                        <p className="font-semibold">6/8</p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Capacity Utilization</span>
-                        <span>65%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-blue-500 h-2 rounded-full" style={{ width: '65%' }}></div>
-                      </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button size="sm" variant="outline" data-testid="button-ct-hub-details">View Details</Button>
-                      <Button size="sm" variant="outline" data-testid="button-ct-hub-inventory">Inventory</Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            {hubsLoading ? (
+              <p className="text-muted-foreground text-center py-8">Loading hubs...</p>
+            ) : hubs.length === 0 ? (
+              <Card><CardContent className="p-8 text-center">
+                <p className="text-muted-foreground">No hubs configured yet.</p>
+              </CardContent></Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {hubs.map(hub => {
+                  const utilization = hub.capacity ? Math.round(((hub.currentLoad ?? 0) / hub.capacity) * 100) : 0;
+                  return (
+                    <Card key={hub.id}>
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle>{hub.name}</CardTitle>
+                            <CardDescription>{hub.address}</CardDescription>
+                          </div>
+                          <Badge className={hub.isActive ? "bg-primary/10 text-primary" : "bg-secondary/20"}>
+                            {hub.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Capacity:</span>
+                              <p className="font-semibold">{hub.capacity ?? "N/A"} units</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Current Load:</span>
+                              <p className="font-semibold">{hub.currentLoad ?? 0} units</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Cold Storage:</span>
+                              <p className="font-semibold text-accent">
+                                <Thermometer className="w-4 h-4 inline mr-1" />
+                                {hub.coldStorage ? "Yes" : "No"}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Lat/Lng:</span>
+                              <p className="font-semibold text-xs">{hub.latitude.toFixed(4)}, {hub.longitude.toFixed(4)}</p>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>Capacity Utilization</span>
+                              <span>{utilization}%</span>
+                            </div>
+                            <div className="w-full bg-muted rounded-full h-2">
+                              <div
+                                className="bg-accent h-2 rounded-full"
+                                style={{ width: `${utilization}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
           </TabsContent>
 
           {/* Service Areas */}
           <TabsContent value="service-areas" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Service Areas & Geo-Fencing</h2>
-              <Button data-testid="button-add-service-area">Add Service Area</Button>
             </div>
 
-            <div className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="flex items-center space-x-2">
-                        <MapPin className="w-5 h-5" />
-                        <span>Johannesburg Central</span>
-                      </CardTitle>
-                      <CardDescription>Primary delivery zone for Johannesburg hub</CardDescription>
-                    </div>
-                    <Badge className="bg-green-100 text-green-700">Active</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-600">Delivery Fee:</span>
-                      <p className="font-semibold">R25.00</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Min Order:</span>
-                      <p className="font-semibold">R100.00</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Max Delivery:</span>
-                      <p className="font-semibold">60 minutes</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Active Orders:</span>
-                      <p className="font-semibold">12</p>
-                    </div>
-                  </div>
-                  <div className="flex space-x-2 mt-4">
-                    <Button size="sm" variant="outline" data-testid="button-view-area">View Boundaries</Button>
-                    <Button size="sm" variant="outline" data-testid="button-edit-area">Edit Settings</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            {areasLoading ? (
+              <p className="text-muted-foreground text-center py-8">Loading service areas...</p>
+            ) : serviceAreas.length === 0 ? (
+              <Card><CardContent className="p-8 text-center">
+                <p className="text-muted-foreground">No service areas configured yet.</p>
+              </CardContent></Card>
+            ) : (
+              <div className="space-y-4">
+                {serviceAreas.map(area => {
+                  const areaOrders = orders.filter(o => o.serviceAreaId === area.id);
+                  return (
+                    <Card key={area.id}>
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle className="flex items-center space-x-2">
+                              <MapPin className="w-5 h-5" />
+                              <span>{area.name}</span>
+                            </CardTitle>
+                          </div>
+                          <Badge className={area.isActive ? "bg-primary/10 text-primary" : "bg-secondary/20"}>
+                            {area.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Delivery Fee:</span>
+                            <p className="font-semibold">R{parseFloat(area.deliveryFee as any || "0").toFixed(2)}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Min Order:</span>
+                            <p className="font-semibold">R{parseFloat(area.minOrderValue as any || "0").toFixed(2)}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Max Delivery:</span>
+                            <p className="font-semibold">{area.maxDeliveryTime ?? 60} minutes</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Orders:</span>
+                            <p className="font-semibold">{areaOrders.length}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
           </TabsContent>
 
           {/* Performance Analytics */}
@@ -396,20 +331,24 @@ export default function Operations() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-center">
-                    <p className="text-4xl font-bold text-green-600">94.2%</p>
-                    <p className="text-gray-600">This month</p>
+                    <p className="text-4xl font-bold text-primary">{slaRate}%</p>
+                    <p className="text-muted-foreground">All time</p>
                     <div className="mt-4 space-y-2">
                       <div className="flex justify-between text-sm">
                         <span>On-time deliveries</span>
-                        <span className="text-green-600">456</span>
+                        <span className="text-primary">{onTimeOrders.length}</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span>Late deliveries</span>
-                        <span className="text-yellow-600">24</span>
+                        <span className="text-secondary-foreground">
+                          {orders.filter(o => o.slaStatus === "late").length}
+                        </span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span>Failed deliveries</span>
-                        <span className="text-red-600">4</span>
+                        <span className="text-destructive">
+                          {orders.filter(o => o.slaStatus === "failed").length}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -418,25 +357,25 @@ export default function Operations() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Route Efficiency</CardTitle>
-                  <CardDescription>Delivery route optimization</CardDescription>
+                  <CardTitle>Order Summary</CardTitle>
+                  <CardDescription>Order status breakdown</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="text-center">
-                    <p className="text-4xl font-bold text-blue-600">89%</p>
-                    <p className="text-gray-600">Route optimization</p>
+                    <p className="text-4xl font-bold text-accent">{orders.length}</p>
+                    <p className="text-muted-foreground">Total orders</p>
                     <div className="mt-4 space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span>Avg delivery time</span>
-                        <span>42 minutes</span>
+                        <span>Pending</span>
+                        <span>{orders.filter(o => o.status === "pending").length}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span>Distance saved</span>
-                        <span className="text-green-600">23%</span>
+                        <span>In transit</span>
+                        <span>{orders.filter(o => o.status === "in_transit").length}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span>Fuel efficiency</span>
-                        <span className="text-green-600">+18%</span>
+                        <span>Delivered</span>
+                        <span className="text-primary">{deliveredOrders.length}</span>
                       </div>
                     </div>
                   </div>

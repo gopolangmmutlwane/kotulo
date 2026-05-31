@@ -33,13 +33,13 @@ export function ProductCard({ product }: ProductCardProps) {
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'vegetables':
-        return 'bg-green-100 text-green-700';
+        return 'bg-primary/10 text-primary';
       case 'meat':
-        return 'bg-red-100 text-red-700';
+        return 'bg-destructive/10 text-destructive';
       case 'dairy':
-        return 'bg-yellow-100 text-yellow-700';
+        return 'bg-secondary/50 text-secondary-foreground';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -55,7 +55,7 @@ export function ProductCard({ product }: ProductCardProps) {
           variant="ghost"
           size="icon"
           className={`absolute top-2 right-2 ${
-            isWishlisted ? 'text-farm-red' : 'text-gray-400 hover:text-farm-red'
+            isWishlisted ? 'text-destructive' : 'text-muted-foreground hover:text-destructive'
           }`}
           onClick={() => setIsWishlisted(!isWishlisted)}
           data-testid={`button-wishlist-${product.id}`}
@@ -70,7 +70,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
           </Badge>
           {product.organic && (
-            <Badge variant="outline" className="text-green-600 border-green-600">
+            <Badge variant="outline" className="text-primary border-primary">
               Organic
             </Badge>
           )}
@@ -80,7 +80,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.name}
         </h3>
         
-        <p className="text-sm text-gray-600 mb-2 line-clamp-2" data-testid={`text-product-description-${product.id}`}>
+        <p className="text-sm text-muted-foreground mb-2 line-clamp-2" data-testid={`text-product-description-${product.id}`}>
           {product.description}
         </p>
         
@@ -92,7 +92,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <Button
             onClick={handleAddToCart}
             disabled={isAdding}
-            className="bg-farm-green hover:bg-green-700 text-white"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
             size="sm"
             data-testid={`button-add-to-cart-${product.id}`}
           >

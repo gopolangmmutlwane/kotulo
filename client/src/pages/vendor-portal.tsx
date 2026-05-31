@@ -1,11 +1,19 @@
 import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Link } from "wouter";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { AuthGuard } from "@/components/auth-guard";
+import { Link, useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import type { Product, Order, Farmer } from "@shared/schema";
 import { 
   Store, 
   Package, 
@@ -16,69 +24,96 @@ import {
   Plus,
   Eye,
   Edit,
-  BarChart3
+  BarChart3,
+  Trash2
 } from "lucide-react";
 
 export default function VendorPortal() {
+  const [, setLocation] = useLocation();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: allProducts = [], isLoading: productsLoading } = useQuery<Product[]>({
+    queryKey: ["/api/products"],
+  });
+
+  const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
+    queryKey: ["/api/orders"],
+  });
+
+  const { data: farmers = [] } = useQuery<Farmer[]>({
+    queryKey: ["/api/farmers"],
+  });
+
+  const deleteProductMutation = useMutation({
+    mutationFn: async (productId: string) => {
+      const res = await apiRequest("DELETE", `/api/products/${productId}`);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      toast({ title: "Product Deleted", description: "Product removed successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to delete product", variant: "destructive" });
+    },
+  });
+
+  const totalRevenue = orders.reduce((sum, o) => sum + parseFloat((o.total as any) || '0'), 0);
+  const activeProducts = allProducts.filter(p => p.isActive).length;
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-green-950 dark:to-gray-900">
-      {/* Navigation */}
-      <nav className="bg-white dark:bg-gray-800 shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link href="/dashboard">
-                <Button variant="outline" size="sm">← Dashboard</Button>
-              </Link>
-              <div className="flex items-center space-x-2">
-                <Store className="w-6 h-6 text-green-600" />
-                <span className="font-bold text-xl">Vendor Portal</span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Badge variant="outline">Thabo's Organic Farm</Badge>
-              <Badge className="bg-green-600">Verified Vendor</Badge>
+    <AuthGuard requiredRole="vendor">
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-3">
+            <Store className="w-8 h-8 text-primary" />
+            <div>
+              <h1 className="text-3xl font-bold">Vendor Portal</h1>
+              <p className="text-muted-foreground">{user?.businessName || user?.name}</p>
             </div>
           </div>
+          <Badge className="bg-primary text-primary-foreground">Vendor</Badge>
         </div>
-      </nav>
 
-      <div className="container mx-auto px-4 py-8">
         {/* Dashboard Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardContent className="p-6 text-center">
-              <DollarSign className="w-8 h-8 text-green-600 mx-auto mb-2" />
-              <h3 className="font-semibold mb-1">Monthly Revenue</h3>
-              <p className="text-2xl font-bold text-green-600">R45,230</p>
-              <p className="text-sm text-gray-600">+12% from last month</p>
+              <DollarSign className="w-8 h-8 text-primary mx-auto mb-2" />
+              <h3 className="font-semibold mb-1">Total Revenue</h3>
+              <p className="text-2xl font-bold text-primary">R{totalRevenue.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</p>
+              <p className="text-sm text-muted-foreground">All time</p>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6 text-center">
-              <Package className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+              <Package className="w-8 h-8 text-accent mx-auto mb-2" />
               <h3 className="font-semibold mb-1">Active Products</h3>
-              <p className="text-2xl font-bold text-blue-600">23</p>
-              <p className="text-sm text-gray-600">5 need restocking</p>
+              <p className="text-2xl font-bold text-accent">{activeProducts}</p>
+              <p className="text-sm text-muted-foreground">{allProducts.length} total</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="p-6 text-center">
-              <TrendingUp className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+              <TrendingUp className="w-8 h-8 text-secondary mx-auto mb-2" />
               <h3 className="font-semibold mb-1">Total Orders</h3>
-              <p className="text-2xl font-bold text-purple-600">156</p>
-              <p className="text-sm text-gray-600">This month</p>
+              <p className="text-2xl font-bold text-secondary">{orders.length}</p>
+              <p className="text-sm text-muted-foreground">All time</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="p-6 text-center">
-              <Star className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
-              <h3 className="font-semibold mb-1">Average Rating</h3>
-              <p className="text-2xl font-bold text-yellow-600">4.8</p>
-              <p className="text-sm text-gray-600">124 reviews</p>
+              <Star className="w-8 h-8 text-secondary-foreground mx-auto mb-2" />
+              <h3 className="font-semibold mb-1">Farmers</h3>
+              <p className="text-2xl font-bold text-secondary-foreground">{farmers.length}</p>
+              <p className="text-sm text-muted-foreground">Available suppliers</p>
             </CardContent>
           </Card>
         </div>
@@ -96,235 +131,180 @@ export default function VendorPortal() {
           <TabsContent value="products" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Product Catalog</h2>
-              <Button data-testid="button-add-product">
+              <Button onClick={() => setLocation("/add-product")} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Product
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle>Organic Tomatoes</CardTitle>
-                      <CardDescription>Grade A, 1kg units</CardDescription>
-                    </div>
-                    <Badge className="bg-green-100 text-green-700">Active</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-600">Retail Price:</span>
-                        <p className="font-semibold">R25.00/kg</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Wholesale:</span>
-                        <p className="font-semibold">R20.00/kg</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">In Stock:</span>
-                        <p className="font-semibold text-green-600">450kg</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Commission:</span>
-                        <p className="font-semibold">10%</p>
-                      </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button size="sm" variant="outline" data-testid="button-view-product">
-                        <Eye className="w-4 h-4 mr-1" />
-                        View
-                      </Button>
-                      <Button size="sm" variant="outline" data-testid="button-edit-product">
-                        <Edit className="w-4 h-4 mr-1" />
-                        Edit
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle>Organic Spinach</CardTitle>
-                      <CardDescription>Fresh leafy greens, 500g</CardDescription>
-                    </div>
-                    <Badge variant="outline" className="bg-yellow-50 text-yellow-700">Low Stock</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-600">Retail Price:</span>
-                        <p className="font-semibold">R15.00/kg</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Wholesale:</span>
-                        <p className="font-semibold">R12.00/kg</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">In Stock:</span>
-                        <p className="font-semibold text-yellow-600">8kg</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Commission:</span>
-                        <p className="font-semibold">10%</p>
-                      </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button size="sm" variant="outline" data-testid="button-restock">Restock</Button>
-                      <Button size="sm" variant="outline" data-testid="button-edit-spinach">Edit</Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            {productsLoading ? (
+              <p className="text-muted-foreground text-center py-8">Loading products...</p>
+            ) : allProducts.length === 0 ? (
+              <Card><CardContent className="p-8 text-center">
+                <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground mb-4">No products listed yet</p>
+                <Button onClick={() => setLocation("/add-product")} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                  <Plus className="w-4 h-4 mr-2" />Add First Product
+                </Button>
+              </CardContent></Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {allProducts.map(product => {
+                  const farmer = farmers.find(f => f.id === product.farmerId);
+                  return (
+                    <Card key={product.id}>
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle className="text-lg">{product.name}</CardTitle>
+                            <CardDescription>{farmer?.name || 'Unknown Farmer'} · {product.category}</CardDescription>
+                          </div>
+                          <Badge variant={product.isActive ? "default" : "secondary"}>
+                            {product.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {product.image && (
+                            <img src={product.image} alt={product.name} className="w-full h-32 object-cover rounded" />
+                          )}
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Retail:</span>
+                              <p className="font-semibold">R{parseFloat(product.retailPrice as any).toFixed(2)}/{product.unit}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Wholesale:</span>
+                              <p className="font-semibold">R{parseFloat(product.wholesalePrice as any || product.retailPrice as any).toFixed(2)}/{product.unit}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Min Order:</span>
+                              <p className="font-semibold">{product.minOrderQty} {product.unit}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Organic:</span>
+                              <p className="font-semibold">{product.organic ? '✅ Yes' : '❌ No'}</p>
+                            </div>
+                          </div>
+                          <div className="flex space-x-2 pt-2">
+                            <Button size="sm" variant="outline" onClick={() => setLocation(`/farmers/${product.farmerId}`)}>
+                              <Eye className="w-4 h-4 mr-1" />View
+                            </Button>
+                            <Button
+                              size="sm" variant="destructive"
+                              onClick={() => { if (confirm(`Delete ${product.name}?`)) deleteProductMutation.mutate(product.id); }}
+                              disabled={deleteProductMutation.isPending}
+                            >
+                              <Trash2 className="w-4 h-4 mr-1" />Delete
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
           </TabsContent>
 
-          {/* Inventory Management */}
+          {/* Inventory - show product list with shelf life */}
           <TabsContent value="inventory" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Inventory Management</h2>
-              <Button data-testid="button-add-lot">Add Product Lot</Button>
-            </div>
-
-            <div className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Package className="w-5 h-5" />
-                    <span>Product Lot: TOM-2024-001</span>
-                  </CardTitle>
-                  <CardDescription>Organic Tomatoes - Batch tracking</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-600">Harvest Date:</span>
-                      <p className="font-semibold">March 15, 2024</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Expiry Date:</span>
-                      <p className="font-semibold">March 22, 2024</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Quantity:</span>
-                      <p className="font-semibold">500kg</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Available:</span>
-                      <p className="font-semibold text-green-600">450kg</p>
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Stock Level</span>
-                      <span>90%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-green-500 h-2 rounded-full" style={{ width: '90%' }}></div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Package className="w-5 h-5" />
-                    <span>Product Lot: SPI-2024-003</span>
-                  </CardTitle>
-                  <CardDescription>Organic Spinach - Batch tracking</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-600">Harvest Date:</span>
-                      <p className="font-semibold">March 18, 2024</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Expiry Date:</span>
-                      <p className="font-semibold text-yellow-600">March 21, 2024</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Quantity:</span>
-                      <p className="font-semibold">30kg</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Available:</span>
-                      <p className="font-semibold text-red-600">8kg</p>
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Stock Level</span>
-                      <span>27%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-red-500 h-2 rounded-full" style={{ width: '27%' }}></div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <h2 className="text-2xl font-bold">Inventory Overview</h2>
+            {allProducts.length === 0 ? (
+              <Card><CardContent className="p-8 text-center">
+                <p className="text-muted-foreground">No inventory yet. Add products first.</p>
+              </CardContent></Card>
+            ) : (
+              <div className="space-y-4">
+                {allProducts.map(product => (
+                  <Card key={product.id}>
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2">
+                        <Package className="w-5 h-5" />
+                        <span>{product.name}</span>
+                      </CardTitle>
+                      <CardDescription>{product.category} · Min order: {product.minOrderQty} {product.unit}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Retail Price:</span>
+                          <p className="font-semibold">R{parseFloat(product.retailPrice as any).toFixed(2)}/{product.unit}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Shelf Life:</span>
+                          <p className="font-semibold">{product.shelfLifeDays ? `${product.shelfLifeDays} days` : 'N/A'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Temperature:</span>
+                          <p className="font-semibold">{product.temperatureRange || 'Ambient'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Status:</span>
+                          <Badge variant={product.isActive ? "default" : "secondary"}>{product.isActive ? 'Active' : 'Inactive'}</Badge>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           {/* Order Management */}
           <TabsContent value="orders" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Recent Orders</h2>
-              <Button variant="outline" data-testid="button-export-orders">Export Orders</Button>
-            </div>
-
-            <div className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle>Order #ORD-2024-156</CardTitle>
-                      <CardDescription>Sunnydale Supermarket - B2B Order</CardDescription>
-                    </div>
-                    <Badge className="bg-blue-100 text-blue-700">Processing</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-600">Total Amount:</span>
-                      <p className="font-semibold">R2,450.00</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Commission:</span>
-                      <p className="font-semibold text-green-600">R245.00</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Delivery Date:</span>
-                      <p className="font-semibold">March 22, 2024</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Items:</span>
-                      <p className="font-semibold">3 products</p>
-                    </div>
-                  </div>
-                  <div className="flex space-x-2 mt-4">
-                    <Button size="sm" variant="outline" data-testid="button-fulfill-order">Mark as Ready</Button>
-                    <Button size="sm" variant="outline" data-testid="button-view-order">View Details</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <h2 className="text-2xl font-bold">Orders</h2>
+            {ordersLoading ? (
+              <p className="text-muted-foreground text-center py-8">Loading orders...</p>
+            ) : orders.length === 0 ? (
+              <Card><CardContent className="p-8 text-center">
+                <p className="text-muted-foreground">No orders yet.</p>
+              </CardContent></Card>
+            ) : (
+              <div className="space-y-4">
+                {orders.map(order => (
+                  <Card key={order.id}>
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle>Order #{order.id.slice(0, 8).toUpperCase()}</CardTitle>
+                          <CardDescription>{order.customerName} · {order.customerEmail}</CardDescription>
+                        </div>
+                        <Badge variant={order.status === 'delivered' ? 'default' : order.status === 'pending' ? 'secondary' : 'outline'}>
+                          {order.status}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Total:</span>
+                          <p className="font-semibold text-primary">R{parseFloat(order.total as any).toFixed(2)}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Items:</span>
+                          <p className="font-semibold">{Array.isArray(order.items) ? (order.items as any[]).length : 0}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Placed:</span>
+                          <p className="font-semibold">{order.createdAt ? new Date(order.createdAt as any).toLocaleDateString() : 'N/A'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Address:</span>
+                          <p className="font-semibold text-xs">{order.deliveryAddress?.slice(0, 30)}...</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           {/* Analytics */}
           <TabsContent value="analytics" className="space-y-6">
             <h2 className="text-2xl font-bold">Sales Analytics</h2>
-            
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -335,16 +315,18 @@ export default function VendorPortal() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-green-600">R145,230</p>
-                    <p className="text-gray-600">Total Revenue (YTD)</p>
+                    <p className="text-3xl font-bold text-primary">R{totalRevenue.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</p>
+                    <p className="text-muted-foreground">Total Revenue</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-blue-600">456</p>
-                    <p className="text-gray-600">Total Orders (YTD)</p>
+                    <p className="text-3xl font-bold text-accent">{orders.length}</p>
+                    <p className="text-muted-foreground">Total Orders</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-purple-600">R318</p>
-                    <p className="text-gray-600">Average Order Value</p>
+                    <p className="text-3xl font-bold text-secondary">
+                      R{orders.length > 0 ? (totalRevenue / orders.length).toFixed(2) : '0.00'}
+                    </p>
+                    <p className="text-muted-foreground">Avg Order Value</p>
                   </div>
                 </div>
               </CardContent>
@@ -353,43 +335,43 @@ export default function VendorPortal() {
 
           {/* Settings */}
           <TabsContent value="settings" className="space-y-6">
-            <h2 className="text-2xl font-bold">Vendor Settings</h2>
-            
+            <h2 className="text-2xl font-bold">Account Settings</h2>
             <Card>
               <CardHeader>
-                <CardTitle>Commission & Fulfillment</CardTitle>
-                <CardDescription>Manage your commission rates and fulfillment preferences</CardDescription>
+                <CardTitle>Profile</CardTitle>
+                <CardDescription>Your vendor account information</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <Label htmlFor="commission">Commission Rate (%)</Label>
-                    <Input id="commission" type="number" defaultValue="10" data-testid="input-commission" />
+                    <span className="text-muted-foreground">Name:</span>
+                    <p className="font-semibold">{user?.name}</p>
                   </div>
                   <div>
-                    <Label htmlFor="ad-budget">Monthly Ad Budget</Label>
-                    <Input id="ad-budget" type="number" defaultValue="500" data-testid="input-ad-budget" />
+                    <span className="text-muted-foreground">Email:</span>
+                    <p className="font-semibold">{user?.email}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Business:</span>
+                    <p className="font-semibold">{user?.businessName || 'Not set'}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Approval Status:</span>
+                    <Badge variant={user?.approvalStatus === 'approved' ? 'default' : 'secondary'}>
+                      {user?.approvalStatus}
+                    </Badge>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Fulfillment Options</Label>
-                  <div className="flex space-x-4">
-                    <label className="flex items-center space-x-2">
-                      <input type="checkbox" defaultChecked data-testid="checkbox-self-fulfill" />
-                      <span>Self-fulfill orders</span>
-                    </label>
-                    <label className="flex items-center space-x-2">
-                      <input type="checkbox" data-testid="checkbox-consign-hub" />
-                      <span>Consign to micro-hub</span>
-                    </label>
-                  </div>
-                </div>
-                <Button data-testid="button-save-settings">Save Settings</Button>
+                <Button onClick={() => setLocation('/application')} variant="outline">
+                  Update Application
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
+      <Footer />
     </div>
+    </AuthGuard>
   );
 }

@@ -1,8 +1,12 @@
+import { useEffect } from "react";
 import { useRole } from "@/hooks/use-role";
+import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "wouter";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { Link, useLocation } from "wouter";
 import { 
   ShoppingCart, 
   Building2, 
@@ -18,6 +22,41 @@ import {
 
 export default function Dashboard() {
   const { currentRole, setRole } = useRole();
+  const { user, isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
+
+  // Redirect unauthenticated users to login
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setLocation("/login");
+      return;
+    }
+    
+    // Redirect authenticated users to home page
+    if (user) {
+      setLocation("/");
+    }
+  }, [isAuthenticated, user, setLocation]);
+
+  // Show loading or redirect state
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Authentication Required</h2>
+          <p className="text-muted-foreground mb-6">Please log in to access the dashboard.</p>
+          <Button onClick={() => setLocation("/login")}>
+            Go to Login
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show role selection for authenticated users (as a fallback)
+  if (user) {
+    return null; // Will redirect to appropriate dashboard
+  }
 
   const roleCards = [
     {
@@ -25,7 +64,7 @@ export default function Dashboard() {
       title: "Household Shopper",
       description: "Browse and order fresh produce for your family",
       icon: ShoppingCart,
-      color: "bg-blue-500",
+      color: "bg-primary",
       features: ["Fresh produce catalog", "60-minute delivery", "Cart & checkout", "Order tracking"]
     },
     {
@@ -33,7 +72,7 @@ export default function Dashboard() {
       title: "B2B Buyer",
       description: "Bulk ordering for restaurants and supermarkets",
       icon: Building2,
-      color: "bg-purple-500",
+      color: "bg-accent",
       features: ["Bulk ordering", "Purchase orders", "Credit terms", "Recurring orders"]
     },
     {
@@ -41,7 +80,7 @@ export default function Dashboard() {
       title: "Vendor/Farmer",
       description: "Manage your farm and sell to the marketplace",
       icon: Store,
-      color: "bg-green-500",
+      color: "bg-farm-green",
       features: ["Product management", "Inventory tracking", "Commission rates", "Sales analytics"]
     },
     {
@@ -49,7 +88,7 @@ export default function Dashboard() {
       title: "Operations",
       description: "Manage hubs, deliveries, and logistics",
       icon: Truck,
-      color: "bg-orange-500",
+      color: "bg-farm-brown",
       features: ["Hub management", "Delivery tracking", "Route optimization", "SLA monitoring"]
     },
     {
@@ -57,7 +96,7 @@ export default function Dashboard() {
       title: "Admin",
       description: "Platform administration and analytics",
       icon: Users,
-      color: "bg-red-500",
+      color: "bg-destructive",
       features: ["User management", "Platform analytics", "Service areas", "System configuration"]
     }
   ];
@@ -65,43 +104,21 @@ export default function Dashboard() {
   const currentRoleCard = roleCards.find(card => card.role === currentRole);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-green-950 dark:to-gray-900">
-      {/* Navigation */}
-      <nav className="bg-white dark:bg-gray-800 shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold">F</span>
-                </div>
-                <span className="font-bold text-xl">FarmFresh SA</span>
-              </div>
-            </Link>
-            <div className="flex items-center space-x-4">
-              <Badge variant="outline" className="capitalize">
-                {currentRole} Mode
-              </Badge>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/">Back to Shop</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
+    <div className="min-h-screen bg-background">
+      <Header />
+      
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">FarmFresh SA Marketplace</h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <h1 className="text-3xl font-bold mb-2 text-card-foreground">Kotulo Marketplace</h1>
+          <p className="text-muted-foreground">
             Comprehensive farm-to-door platform for South Africa
           </p>
         </div>
 
         {/* Current Role Card */}
         {currentRoleCard && (
-          <Card className="mb-8 border-2 border-green-200 dark:border-green-800">
+          <Card className="mb-8 border-2 border-primary/20">
             <CardHeader>
               <div className="flex items-center space-x-4">
                 <div className={`w-12 h-12 ${currentRoleCard.color} rounded-lg flex items-center justify-center`}>
@@ -110,7 +127,7 @@ export default function Dashboard() {
                 <div>
                   <CardTitle className="flex items-center space-x-2">
                     <span>{currentRoleCard.title}</span>
-                    <Badge>Current Role</Badge>
+                    <Badge className="bg-primary/20 text-primary">Current Role</Badge>
                   </CardTitle>
                   <CardDescription>{currentRoleCard.description}</CardDescription>
                 </div>
@@ -120,7 +137,7 @@ export default function Dashboard() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                 {currentRoleCard.features.map((feature, index) => (
                   <div key={index} className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-primary rounded-full"></div>
                     <span className="text-sm">{feature}</span>
                   </div>
                 ))}
@@ -145,7 +162,7 @@ export default function Dashboard() {
                 key={card.role} 
                 className={`cursor-pointer transition-all ${
                   currentRole === card.role 
-                    ? 'ring-2 ring-green-500 bg-green-50 dark:bg-green-950' 
+                    ? 'ring-2 ring-primary bg-primary/10' 
                     : 'hover:shadow-lg'
                 }`}
                 onClick={() => setRole(card.role as any)}
@@ -166,7 +183,7 @@ export default function Dashboard() {
                   <div className="space-y-2">
                     {card.features.map((feature, index) => (
                       <div key={index} className="flex items-center space-x-2 text-sm">
-                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
+                        <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
                         <span>{feature}</span>
                       </div>
                     ))}
@@ -181,37 +198,38 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <CardContent className="p-6 text-center">
-              <Clock className="w-8 h-8 text-green-600 mx-auto mb-2" />
+              <Clock className="w-8 h-8 text-primary mx-auto mb-2" />
               <h3 className="font-semibold mb-1">60-Min Delivery</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Fast local delivery SLA</p>
+              <p className="text-sm text-muted-foreground">Fast local delivery SLA</p>
             </CardContent>
           </Card>
           
           <Card>
             <CardContent className="p-6 text-center">
-              <MapPin className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+              <MapPin className="w-8 h-8 text-accent mx-auto mb-2" />
               <h3 className="font-semibold mb-1">Service Areas</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Geo-fenced delivery zones</p>
+              <p className="text-sm text-muted-foreground">Geo-fenced delivery zones</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="p-6 text-center">
-              <Package className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+              <Package className="w-8 h-8 text-secondary mx-auto mb-2" />
               <h3 className="font-semibold mb-1">Micro Hubs</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Local fulfillment centers</p>
+              <p className="text-sm text-muted-foreground">Local fulfillment centers</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="p-6 text-center">
-              <BarChart3 className="w-8 h-8 text-orange-600 mx-auto mb-2" />
+              <BarChart3 className="w-8 h-8 text-farm-gold mx-auto mb-2" />
               <h3 className="font-semibold mb-1">Analytics</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Real-time insights</p>
+              <p className="text-sm text-muted-foreground">Real-time insights</p>
             </CardContent>
           </Card>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

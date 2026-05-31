@@ -1,10 +1,64 @@
 import express, { type Request, Response, NextFunction } from "express";
+import session from "express-session";
+import multer from "multer";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit per file
+    fieldSize: 10 * 1024 * 1024, // 10MB limit for form fields
+  },
+  dest: 'uploads/' // Temporary storage location
+});
+
+// Increase body size limits for regular JSON and form data
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+
+// Export upload middleware for use in routes
+export { upload };
+
+// Session configuration
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "farmharvest-secret-key-change-in-production",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      sameSite: "lax",
+    },
+  })
+);
+
+// Platform configuration middleware (will be set by registerRoutes)
+const checkPlatformSettings = (req: Request, res: Response, next: NextFunction) => {
+  // Get platform config from global scope
+  const platformConfig = (global as any).platformConfig;
+  
+  // Only check if platform config is available
+  if (platformConfig && platformConfig.general) {
+    // Check maintenance mode (except for admin routes and login)
+    if (platformConfig.general.maintenanceMode && 
+        !req.path.startsWith('/api/admin') && 
+        !req.path.startsWith('/api/auth/login')) {
+      return res.status(503).json({ 
+        message: "Platform is currently under maintenance. Please try again later.",
+        maintenanceMode: true
+      });
+    }
+  }
+  next();
+};
+
+app.use(checkPlatformSettings);
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -56,16 +110,11 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
+  // Serve the app on the port specified in the environment variable PORT
+  // Default to 5000 if not specified.
+  // This serves both the API and the client.
   const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
+  server.listen(port, "0.0.0.0", () => {
     log(`serving on port ${port}`);
   });
 })();

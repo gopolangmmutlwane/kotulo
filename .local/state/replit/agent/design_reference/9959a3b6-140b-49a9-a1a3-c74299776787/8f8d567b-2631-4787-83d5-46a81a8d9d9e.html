@@ -1,0 +1,583 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kotulo - Fresh From Farm to Table</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'kotulo-cream': '#F4EFD9',
+                    'kotulo-green': '#1E5832',
+                    'kotulo-leaf': '#4F8F2F',
+                    'kotulo-sun': '#F3D38A',
+                    'kotulo-dark': '#0F2617'
+                },
+                fontFamily: {
+                    'sans': ['Inter', 'sans-serif']
+                }
+            }
+        }
+    };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#16A34A">
+    <link rel="apple-touch-icon" href="/icon-192x192.png">
+</head>
+<body class="bg-stone-50 text-gray-900 font-sans">
+
+<!-- @COMPONENT: AppInstallBanner -->
+<div id="pwaInstallBanner" class="bg-farm-green text-white p-3 text-center hidden">
+    <div class="container mx-auto flex items-center justify-between">
+        <span class="text-sm"><i class="fas fa-download mr-2"></i>Install Kotulo app for better experience</span>
+        <button id="installBtn" class="bg-white text-farm-green px-4 py-1 rounded-lg text-sm font-medium">Install</button>
+    </div>
+</div>
+<!-- @END_COMPONENT: AppInstallBanner -->
+
+<!-- @COMPONENT: Header -->
+<header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="text-2xl font-bold text-farm-green">
+                    <i class="fas fa-seedling mr-2"></i>Kotulo
+                </div>
+            </div>
+            
+            <nav class="hidden md:flex items-center space-x-6">
+                <a href="#" class="text-gray-700 hover:text-farm-green font-medium">Home</a>
+                <a href="#" class="text-gray-700 hover:text-farm-green font-medium">Vegetables</a>
+                <a href="#" class="text-gray-700 hover:text-farm-green font-medium">Meat</a>
+                <a href="#" class="text-gray-700 hover:text-farm-green font-medium">Dairy</a>
+                <a href="#" class="text-gray-700 hover:text-farm-green font-medium">Farmers</a>
+            </nav>
+
+            <div class="flex items-center space-x-4">
+                <button class="md:hidden text-gray-700">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                
+                <div class="hidden md:flex items-center bg-gray-100 rounded-lg px-4 py-2 min-w-64">
+                    <i class="fas fa-search text-gray-400 mr-2"></i>
+                    <input type="text" placeholder="Search products..." class="bg-transparent outline-none flex-1" data-mock="true">
+                </div>
+                
+                <button class="relative text-gray-700 hover:text-farm-green">
+                    <i class="fas fa-shopping-cart text-xl"></i>
+                    <span class="absolute -top-2 -right-2 bg-farm-red text-white text-xs rounded-full px-1.5 py-0.5" data-bind="cart.itemCount">3</span>
+                </button>
+                
+                <button class="bg-farm-green text-white px-4 py-2 rounded-lg font-medium">
+                    <i class="fas fa-user mr-2"></i>Login
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- @END_COMPONENT: Header -->
+
+<!-- @COMPONENT: Hero -->
+<section class="bg-gradient-to-r from-farm-green to-green-600 text-white py-16">
+    <div class="container mx-auto px-4">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">Fresh From Farm to Your Table</h1>
+                <p class="text-xl mb-6 text-green-100">Connect directly with South African farmers for the freshest vegetables, quality meat, and farm-fresh dairy products.</p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button class="bg-white text-farm-green px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-shopping-bag mr-2"></i>Start Shopping
+                    </button>
+                    <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-farm-green transition-colors">
+                        <i class="fas fa-user-plus mr-2"></i>Join as Farmer
+                    </button>
+                </div>
+            </div>
+            <div class="relative">
+                <!-- Vibrant South African farmer's market with fresh produce displays -->
+                <img src="https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" alt="Fresh produce at South African market" class="rounded-xl shadow-2xl w-full h-auto" />
+            </div>
+        </div>
+    </div>
+</section>
+<!-- @END_COMPONENT: Hero -->
+
+<!-- @COMPONENT: Categories -->
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-8">Shop by Category</h2>
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <div class="w-16 h-16 bg-farm-green rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-carrot text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Fresh Vegetables</h3>
+                <p class="text-gray-600 mb-4">Seasonal vegetables straight from the farm</p>
+                <span class="text-farm-green font-medium">150+ Products <i class="fas fa-arrow-right ml-1"></i></span>
+            </div>
+            
+            <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <div class="w-16 h-16 bg-farm-red rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-drumstick-bite text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Quality Meat</h3>
+                <p class="text-gray-600 mb-4">Premium cuts from local farms</p>
+                <span class="text-farm-red font-medium">80+ Products <i class="fas fa-arrow-right ml-1"></i></span>
+            </div>
+            
+            <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <div class="w-16 h-16 bg-farm-gold rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-glass-whiskey text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Fresh Dairy</h3>
+                <p class="text-gray-600 mb-4">Farm-fresh milk, cheese, and yogurt</p>
+                <span class="text-farm-gold font-medium">45+ Products <i class="fas fa-arrow-right ml-1"></i></span>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- @END_COMPONENT: Categories -->
+
+<!-- @COMPONENT: FeaturedProducts -->
+<section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-3xl font-bold">Featured Products</h2>
+            <button class="text-farm-green font-medium hover:underline">View All <i class="fas fa-arrow-right ml-1"></i></button>
+        </div>
+        
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- @MAP: featuredProducts.map(product => ( -->
+            <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow overflow-hidden">
+                <!-- Fresh organic tomatoes on the vine at a local market -->
+                <img src="https://pixabay.com/get/g578267ce9a5df6a7044eee4506fd39c65ee7486092d4d708cfc64435d1a585eb55cc93e47a28a7ad84bf73b6da3917799470c7286bed33645fe82be752f17544_1280.jpg" alt="Fresh tomatoes" class="w-full h-48 object-cover" data-mock-image="true" />
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="bg-green-100 text-green-700 text-xs font-medium px-2 py-1 rounded" data-mock="true">Vegetables</span>
+                        <button class="text-gray-400 hover:text-farm-red">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <h3 class="font-semibold mb-1" data-mock="true">Organic Tomatoes</h3>
+                    <p class="text-sm text-gray-600 mb-2" data-mock="true">Fresh from Johannesburg Farm</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-bold text-farm-green" data-bind="product.price" data-mock="true">R25.00/kg</span>
+                        <button class="bg-farm-green text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-600">
+                            <i class="fas fa-plus mr-1"></i>Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow overflow-hidden">
+                <!-- Premium grass-fed beef cuts displayed at butcher shop -->
+                <img src="https://pixabay.com/get/g64cc78a90e3ace9a3261be3483fdd184061747da2754aa4bca5a98814e151f5b9ec0cdfaf1d62ecea35b4214b85ee9204bd69ae438c7e83eb8067f2d9fbec5ef_1280.jpg" alt="Premium beef cuts" class="w-full h-48 object-cover" data-mock-image="true" />
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="bg-red-100 text-red-700 text-xs font-medium px-2 py-1 rounded" data-mock="true">Meat</span>
+                        <button class="text-gray-400 hover:text-farm-red">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <h3 class="font-semibold mb-1" data-mock="true">Grass-Fed Beef</h3>
+                    <p class="text-sm text-gray-600 mb-2" data-mock="true">Premium cuts from Cape Town</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-bold text-farm-green" data-bind="product.price" data-mock="true">R180.00/kg</span>
+                        <button class="bg-farm-green text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-600">
+                            <i class="fas fa-plus mr-1"></i>Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow overflow-hidden">
+                <!-- Fresh farm milk in glass bottles with cream on top -->
+                <img src="https://images.unsplash.com/photo-1563636619-e9143da7973b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" alt="Fresh farm milk" class="w-full h-48 object-cover" data-mock-image="true" />
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="bg-yellow-100 text-yellow-700 text-xs font-medium px-2 py-1 rounded" data-mock="true">Dairy</span>
+                        <button class="text-gray-400 hover:text-farm-red">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <h3 class="font-semibold mb-1" data-mock="true">Farm Fresh Milk</h3>
+                    <p class="text-sm text-gray-600 mb-2" data-mock="true">Raw milk from Durban dairy</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-bold text-farm-green" data-bind="product.price" data-mock="true">R18.00/L</span>
+                        <button class="bg-farm-green text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-600">
+                            <i class="fas fa-plus mr-1"></i>Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow overflow-hidden">
+                <!-- Colorful array of fresh vegetables including peppers, cabbage, and carrots -->
+                <img src="https://images.unsplash.com/photo-1590779033100-9f60a05a013d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" alt="Mixed fresh vegetables" class="w-full h-48 object-cover" data-mock-image="true" />
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="bg-green-100 text-green-700 text-xs font-medium px-2 py-1 rounded" data-mock="true">Vegetables</span>
+                        <button class="text-gray-400 hover:text-farm-red">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <h3 class="font-semibold mb-1" data-mock="true">Mixed Vegetables</h3>
+                    <p class="text-sm text-gray-600 mb-2" data-mock="true">Seasonal mix from Pretoria</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-bold text-farm-green" data-bind="product.price" data-mock="true">R35.00/box</span>
+                        <button class="bg-farm-green text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-600">
+                            <i class="fas fa-plus mr-1"></i>Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_MAP )) -->
+        </div>
+    </div>
+</section>
+<!-- @END_COMPONENT: FeaturedProducts -->
+
+<!-- @COMPONENT: FeaturedFarmers -->
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold mb-4">Meet Our Farmers</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Connect directly with local South African farmers who are passionate about bringing you the freshest, highest quality produce.</p>
+        </div>
+        
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- @MAP: featuredFarmers.map(farmer => ( -->
+            <div class="bg-gray-50 rounded-xl p-6 text-center hover:shadow-lg transition-shadow">
+                <!-- Smiling South African farmer in fields holding fresh vegetables -->
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150" alt="Farmer portrait" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover" data-mock-image="true" />
+                <h3 class="font-semibold text-lg mb-1" data-mock="true">Thabo Mthembu</h3>
+                <p class="text-gray-600 mb-2" data-mock="true">Organic Vegetable Farm</p>
+                <p class="text-sm text-gray-500 mb-4" data-mock="true">Johannesburg, Gauteng</p>
+                <div class="flex items-center justify-center mb-4">
+                    <div class="flex text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <span class="text-sm text-gray-600 ml-2" data-mock="true">(124 reviews)</span>
+                </div>
+                <button class="bg-farm-green text-white px-6 py-2 rounded-lg font-medium hover:bg-green-600 w-full">
+                    <i class="fas fa-store mr-2"></i>Visit Store
+                </button>
+            </div>
+
+            <div class="bg-gray-50 rounded-xl p-6 text-center hover:shadow-lg transition-shadow">
+                <!-- African female farmer with cattle in background on rural farm -->
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150" alt="Female farmer portrait" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover" data-mock-image="true" />
+                <h3 class="font-semibold text-lg mb-1" data-mock="true">Sarah van der Merwe</h3>
+                <p class="text-gray-600 mb-2" data-mock="true">Dairy & Livestock Farm</p>
+                <p class="text-sm text-gray-500 mb-4" data-mock="true">Stellenbosch, Western Cape</p>
+                <div class="flex items-center justify-center mb-4">
+                    <div class="flex text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <span class="text-sm text-gray-600 ml-2" data-mock="true">(89 reviews)</span>
+                </div>
+                <button class="bg-farm-green text-white px-6 py-2 rounded-lg font-medium hover:bg-green-600 w-full">
+                    <i class="fas fa-store mr-2"></i>Visit Store
+                </button>
+            </div>
+
+            <div class="bg-gray-50 rounded-xl p-6 text-center hover:shadow-lg transition-shadow">
+                <!-- Elderly South African farmer in traditional farming attire with harvest -->
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150" alt="Senior farmer portrait" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover" data-mock-image="true" />
+                <h3 class="font-semibold text-lg mb-1" data-mock="true">Pieter Botha</h3>
+                <p class="text-gray-600 mb-2" data-mock="true">Mixed Farming</p>
+                <p class="text-sm text-gray-500 mb-4" data-mock="true">Bloemfontein, Free State</p>
+                <div class="flex items-center justify-center mb-4">
+                    <div class="flex text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="far fa-star"></i>
+                    </div>
+                    <span class="text-sm text-gray-600 ml-2" data-mock="true">(67 reviews)</span>
+                </div>
+                <button class="bg-farm-green text-white px-6 py-2 rounded-lg font-medium hover:bg-green-600 w-full">
+                    <i class="fas fa-store mr-2"></i>Visit Store
+                </button>
+            </div>
+            <!-- @END_MAP )) -->
+        </div>
+    </div>
+</section>
+<!-- @END_COMPONENT: FeaturedFarmers -->
+
+<!-- @COMPONENT: AppPromotion -->
+<section class="py-12 bg-gradient-to-r from-farm-green to-green-600 text-white">
+    <div class="container mx-auto px-4">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+                <h2 class="text-3xl font-bold mb-4">Download Our Mobile App</h2>
+                <p class="text-green-100 mb-6">Get the Kotulo app for easier shopping, exclusive deals, and direct farmer connections. Install as a Progressive Web App for the best experience.</p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button id="installAppBtn" class="bg-white text-farm-green px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-download mr-2"></i>Install App
+                    </button>
+                    <button class="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-farm-green transition-colors">
+                        <i class="fab fa-apple mr-2"></i>App Store
+                    </button>
+                </div>
+            </div>
+            <div class="text-center">
+                <!-- Modern smartphone displaying the Kotulo app interface -->
+                <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500" alt="Mobile app preview" class="max-w-sm mx-auto rounded-2xl shadow-2xl" />
+            </div>
+        </div>
+    </div>
+</section>
+<!-- @END_COMPONENT: AppPromotion -->
+
+<!-- @COMPONENT: Footer -->
+<footer class="bg-gray-900 text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="grid md:grid-cols-4 gap-8">
+            <div>
+                <div class="text-2xl font-bold text-farm-green mb-4">
+                    <i class="fas fa-seedling mr-2"></i>Kotulo
+                </div>
+                <p class="text-gray-400 mb-4">Connecting South African farmers with consumers for fresh, quality produce delivered straight from the farm.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook text-xl"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter text-xl"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram text-xl"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin text-xl"></i></a>
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="font-semibold mb-4">Shop</h3>
+                <ul class="space-y-2 text-gray-400">
+                    <li><a href="#" class="hover:text-white">Fresh Vegetables</a></li>
+                    <li><a href="#" class="hover:text-white">Quality Meat</a></li>
+                    <li><a href="#" class="hover:text-white">Dairy Products</a></li>
+                    <li><a href="#" class="hover:text-white">Seasonal Produce</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h3 class="font-semibold mb-4">For Farmers</h3>
+                <ul class="space-y-2 text-gray-400">
+                    <li><a href="#" class="hover:text-white">Join Our Platform</a></li>
+                    <li><a href="#" class="hover:text-white">Seller Dashboard</a></li>
+                    <li><a href="#" class="hover:text-white">Resources</a></li>
+                    <li><a href="#" class="hover:text-white">Support</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h3 class="font-semibold mb-4">Support</h3>
+                <ul class="space-y-2 text-gray-400">
+                    <li><a href="#" class="hover:text-white">Help Center</a></li>
+                    <li><a href="#" class="hover:text-white">Contact Us</a></li>
+                    <li><a href="#" class="hover:text-white">Shipping Info</a></li>
+                    <li><a href="#" class="hover:text-white">Returns</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2024 Kotulo. All rights reserved. Made with <i class="fas fa-heart text-farm-red"></i> for South African farmers.</p>
+        </div>
+    </div>
+</footer>
+<!-- @END_COMPONENT: Footer -->
+
+<!-- @COMPONENT: ShoppingCart [Overlay] -->
+<div id="cartOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl">
+        <div class="p-6 border-b">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-semibold">Shopping Cart</h2>
+                <button id="closeCart" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-6 flex-1 overflow-y-auto">
+            <!-- Cart items would be dynamically loaded here -->
+            <div class="space-y-4" data-mock="true">
+                <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                    <img src="https://pixabay.com/get/g6ba51835f9356947ec637025190549c4ad03dff336a1b1e1db4cf40d0d8a918fd1b8c3be7321afeaaf4655cb12106d7e83bf510979635e21d20789055f84ef67_1280.jpg" alt="Product" class="w-12 h-12 rounded object-cover" />
+                    <div class="flex-1">
+                        <h4 class="font-medium">Organic Tomatoes</h4>
+                        <p class="text-sm text-gray-600">2kg × R25.00</p>
+                    </div>
+                    <span class="font-semibold">R50.00</span>
+                </div>
+            </div>
+        </div>
+        <div class="p-6 border-t">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-lg font-semibold">Total:</span>
+                <span class="text-xl font-bold text-farm-green" data-bind="cart.total">R50.00</span>
+            </div>
+            <button class="w-full bg-farm-green text-white py-3 rounded-lg font-semibold hover:bg-green-600">
+                <i class="fas fa-credit-card mr-2"></i>Proceed to Checkout
+            </button>
+        </div>
+    </div>
+</div>
+<!-- @END_COMPONENT: ShoppingCart -->
+
+<script>
+(function() {
+    // PWA Installation
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+    const installAppBtn = document.getElementById('installAppBtn');
+    const pwaInstallBanner = document.getElementById('pwaInstallBanner');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        pwaInstallBanner.classList.remove('hidden');
+    });
+
+    function installApp() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                    pwaInstallBanner.classList.add('hidden');
+                }
+                deferredPrompt = null;
+            });
+        }
+    }
+
+    if (installBtn) installBtn.addEventListener('click', installApp);
+    if (installAppBtn) installAppBtn.addEventListener('click', installApp);
+
+    // Shopping Cart
+    const cartOverlay = document.getElementById('cartOverlay');
+    const closeCart = document.getElementById('closeCart');
+    const cartButton = document.querySelector('.fa-shopping-cart').parentElement;
+
+    cartButton.addEventListener('click', () => {
+        cartOverlay.classList.remove('hidden');
+    });
+
+    closeCart.addEventListener('click', () => {
+        cartOverlay.classList.add('hidden');
+    });
+
+    cartOverlay.addEventListener('click', (e) => {
+        if (e.target === cartOverlay) {
+            cartOverlay.classList.add('hidden');
+        }
+    });
+
+    // Mobile menu toggle
+    const mobileMenuBtn = document.querySelector('.fa-bars').parentElement;
+    mobileMenuBtn.addEventListener('click', () => {
+        // TODO: Implement mobile menu toggle
+        console.log('Mobile menu clicked');
+    });
+
+    // Add to cart functionality
+    const addToCartBtns = Array.from(document.querySelectorAll('.fa-plus')).map(icon => icon.parentElement);
+    addToCartBtns.forEach(btn => {
+        if (btn && btn.textContent.includes('Add')) {
+            btn.addEventListener('click', () => {
+                // TODO: Implement add to cart logic
+                console.log('Product added to cart');
+                
+                // Simple visual feedback
+                btn.innerHTML = '<i class="fas fa-check mr-1"></i>Added';
+                btn.classList.add('bg-green-600');
+                
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-plus mr-1"></i>Add';
+                    btn.classList.remove('bg-green-600');
+                }, 1000);
+            });
+        }
+    });
+
+    // Search functionality
+    const searchInput = document.querySelector('input[placeholder="Search products..."]');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            // TODO: Implement search functionality
+            console.log('Search query:', e.target.value);
+        });
+    }
+
+    // Wishlist functionality
+    const wishlistBtns = Array.from(document.querySelectorAll('.fa-heart')).map(icon => icon.parentElement);
+    wishlistBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const icon = btn.querySelector('i');
+            if (icon.classList.contains('far')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                icon.classList.add('text-farm-red');
+            } else {
+                icon.classList.remove('fas', 'text-farm-red');
+                icon.classList.add('far');
+            }
+        });
+    });
+
+})();
+</script>
+
+<!-- PWA Manifest (would be in separate file) -->
+<script>
+// PWA Manifest configuration
+const manifestData = {
+    "name": "Kotulo",
+    "short_name": "Kotulo",
+    "description": "Fresh produce from South African farmers",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#16A34A",
+    "theme_color": "#16A34A",
+    "icons": [
+        {
+            "src": "/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+};
+
+// Service Worker Registration
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+                console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+                console.log('SW registration failed: ', registrationError);
+            });
+    });
+}
+</script>
+
+</body>
+</html>

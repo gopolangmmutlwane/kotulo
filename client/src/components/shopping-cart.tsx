@@ -24,7 +24,7 @@ export function ShoppingCartDrawer({ open, onOpenChange }: ShoppingCartDrawerPro
         <div className="flex-1 overflow-y-auto py-6">
           {items.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-500 mb-4">Your cart is empty</p>
+              <p className="text-muted-foreground mb-4">Your cart is empty</p>
               <Button onClick={() => onOpenChange(false)} variant="outline">
                 Continue Shopping
               </Button>
@@ -32,7 +32,7 @@ export function ShoppingCartDrawer({ open, onOpenChange }: ShoppingCartDrawerPro
           ) : (
             <div className="space-y-4">
               {items.map((item) => (
-                <div key={item.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg" data-testid={`cart-item-${item.id}`}>
+                <div key={item.id} className="flex items-center space-x-4 p-4 bg-muted/50 rounded-lg" data-testid={`cart-item-${item.id}`}>
                   <img
                     src={item.image || "/api/placeholder/100/100"}
                     alt={item.name}
@@ -40,7 +40,7 @@ export function ShoppingCartDrawer({ open, onOpenChange }: ShoppingCartDrawerPro
                   />
                   <div className="flex-1">
                     <h4 className="font-medium" data-testid={`text-cart-item-name-${item.id}`}>{item.name}</h4>
-                    <p className="text-sm text-gray-600" data-testid={`text-cart-item-details-${item.id}`}>
+                    <p className="text-sm text-muted-foreground" data-testid={`text-cart-item-details-${item.id}`}>
                       {item.quantity} × {formatPrice(item.price)}/{item.unit}
                     </p>
                     <div className="flex items-center space-x-2 mt-2">
@@ -68,7 +68,7 @@ export function ShoppingCartDrawer({ open, onOpenChange }: ShoppingCartDrawerPro
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 text-red-500 hover:text-red-700"
+                        className="h-6 w-6 text-destructive hover:text-destructive/80"
                         onClick={() => removeItem(item.id)}
                         data-testid={`button-remove-${item.id}`}
                       >
@@ -87,7 +87,7 @@ export function ShoppingCartDrawer({ open, onOpenChange }: ShoppingCartDrawerPro
                   <Button 
                     variant="ghost" 
                     onClick={clearCart} 
-                    className="w-full text-red-500 hover:text-red-700"
+                    className="w-full text-destructive hover:text-destructive/80"
                     data-testid="button-clear-cart"
                   >
                     Clear Cart
@@ -102,13 +102,13 @@ export function ShoppingCartDrawer({ open, onOpenChange }: ShoppingCartDrawerPro
           <div className="border-t pt-6">
             <div className="flex justify-between items-center mb-4">
               <span className="text-lg font-semibold">Total:</span>
-              <span className="text-xl font-bold text-farm-green" data-testid="text-cart-total">
+              <span className="text-xl font-bold text-primary" data-testid="text-cart-total">
                 {formatPrice(totalPrice)}
               </span>
             </div>
             <Link href="/checkout">
               <Button 
-                className="w-full bg-farm-green hover:bg-green-700 text-white"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 onClick={() => onOpenChange(false)}
                 data-testid="button-checkout"
               >
