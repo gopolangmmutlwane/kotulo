@@ -90,7 +90,39 @@ app.use((req, res, next) => {
   next();
 });
 
+async function ensureAdminExists() {
+  try {
+    const { storage } = await import("./storage");
+    const { hashPassword } = await import("./auth");
+    const adminEmail = process.env.ADMIN_EMAIL || "gopolang@kotulo.co.za";
+    const adminPassword = process.env.ADMIN_PASSWORD || "KotuloFarm@25";
+    const adminName = process.env.ADMIN_NAME || "Kotulo";
+    const existing = await storage.getUserByEmail(adminEmail);
+    if (!existing) {
+      const hashed = await hashPassword(adminPassword);
+      await storage.createUser({
+        email: adminEmail,
+        name: adminName,
+        password: hashed,
+        role: "admin",
+        isActive: true,
+        emailVerified: true,
+        approvalStatus: "approved",
+      } as any);
+      console.log("? Admin account created automatically");
+    } else if (existing.role !== "admin") {
+      await storage.updateUser(existing.id, { role: "admin" });
+      console.log("? Admin role restored");
+    } else {
+      console.log("? Admin account OK");
+    }
+  } catch (err) {
+    console.error("? Admin setup error:", err);
+  }
+}
+
 (async () => {
+  await ensureAdminExists();
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
