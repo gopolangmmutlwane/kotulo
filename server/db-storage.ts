@@ -59,9 +59,9 @@ export class DbStorage implements IStorage {
     return result[0];
   }
   async getProducts(category?: string, farmerId?: string): Promise<Product[]> {
-    let query = db.select().from(schema.products).where(eq(schema.products.isActive, true));
+    let query = db.select().from(schema.products).where(and(eq(schema.products.isActive, true), eq(schema.products.status, "approved")));
     if (category) {
-      query = db.select().from(schema.products).where(and(eq(schema.products.isActive, true), eq(schema.products.category, category)));
+      query = db.select().from(schema.products).where(and(eq(schema.products.isActive, true), eq(schema.products.status, "approved"), eq(schema.products.category, category)));
     }
     return query;
   }
@@ -70,7 +70,7 @@ export class DbStorage implements IStorage {
     return result[0];
   }
   async getFeaturedProducts(): Promise<Product[]> {
-    return db.select().from(schema.products).where(and(eq(schema.products.featured, true), eq(schema.products.isActive, true)));
+    return db.select().from(schema.products).where(and(eq(schema.products.featured, true), eq(schema.products.isActive, true), eq(schema.products.status, "approved")));
   }
   async createProduct(product: InsertProduct): Promise<Product> {
     const result = await db.insert(schema.products).values(product).returning();

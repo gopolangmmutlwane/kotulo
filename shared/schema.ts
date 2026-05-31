@@ -16,6 +16,8 @@ export const users = pgTable("users", {
   businessType: text("business_type"), // 'supermarket', 'restaurant', 'vendor', 'farm'
   creditLimit: decimal("credit_limit", { precision: 10, scale: 2 }),
   isActive: boolean("is_active").default(true),
+  status: text("status").notNull().default("approved"), // 'pending', 'approved', 'rejected'
+  rejectionReason: text("rejection_reason"),
   approvalStatus: text("approval_status").default("approved"), // 'pending', 'approved', 'rejected' - for vendors/farmers
   // Application data for vendors/farmers
   businessRegistrationNumber: text("business_registration_number"), // CIPC registration

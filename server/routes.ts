@@ -784,19 +784,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create product
+  // Create product
   app.post("/api/products", async (req, res) => {
     try {
       const validation = insertProductSchema.safeParse(req.body);
       if (!validation.success) {
         return res.status(400).json({ 
           message: "Invalid product data",
-          errors: validation.error.issues 
+          errors: validation.error.issues
         });
       }
 
-      const product = await storage.createProduct(validation.data);
+      // Admin products approved immediately, others need review
+      const userRole = (req.session as any)?.user?.role || 
+        (req.session?.userId ? (await storage.getUser(req.session.userId))?.role : null);
+      const status = userRole === "admin" ? "approved" : "pending";
+
+      const product = await storage.createProduct({
+        ...validation.data,
+        status,
+      } as any);
       res.status(201).json(product);
     } catch (error) {
+      console.error("Create product error:", error);
       res.status(500).json({ message: "Failed to create product" });
     }
   });
@@ -933,7 +943,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         database: {
           status: "healthy",
-          type: "In-Memory (MemStorage)",
+          type: "PostgreSQL (Neon)",
           users: users.length,
           products: products.length,
           orders: orders.length,
@@ -941,28 +951,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch system health" });
-    }
-  });
-
-  // === PLATFORM CONFIG ROUTES ===
-  app.get("/api/platform/config", async (req, res) => {
-    try {
-      const config = await storage.getPlatformConfig();
-      res.json(config);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch platform config" });
-    }
-  });
-
-  app.post("/api/platform/config", async (req, res) => {
-    try {
-      if (!req.body || typeof req.body !== "object") {
-        return res.status(400).json({ message: "Invalid config data" });
-      }
-      const updated = await storage.setPlatformConfig(req.body);
-      res.json(updated);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to save platform config" });
     }
   });
 
