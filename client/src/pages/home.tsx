@@ -56,7 +56,7 @@ function HomeContent() {
                 {user?.role === "admin" ? (
                   <>
                     <h1 className="text-5xl md:text-6xl font-bold leading-tight tracking-tight">
-                      FarmHarvest Admin Dashboard
+                      Kotulo Admin Dashboard
                     </h1>
                     <p className="text-xl leading-relaxed opacity-95 max-w-lg">
                       Manage your marketplace, approve vendors, monitor performance, and ensure smooth operations across the platform.
