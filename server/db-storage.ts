@@ -4,7 +4,7 @@ import * as schema from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
 import type { IStorage } from './storage';
 import type { User, InsertUser, Farmer, InsertFarmer, Product, InsertProduct, Order, InsertOrder, ServiceArea, Hub } from '@shared/schema';
-import { randomUUID } from 'crypto';
+
 
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql, { schema });
