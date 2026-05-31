@@ -46,7 +46,7 @@ export function CategoryCard({
           <p className="text-muted-foreground mb-4">{description}</p>
         </div>
         <span className={`${textColorClass} font-medium flex items-center justify-center`}>
-          {productCount}+ Products <ArrowRight className="ml-1 h-4 w-4" />
+          Shop Now <ArrowRight className="ml-1 h-4 w-4" />
         </span>
       </CardContent>
     </Card>
