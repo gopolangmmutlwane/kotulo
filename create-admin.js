@@ -12,7 +12,7 @@ async function createAdmin() {
   try {
     console.log('🔐 Creating admin account...');
     
-    const response = await fetch('http://localhost:5000/api/admin/setup', {
+    const response = await fetch('https://kotulo.onrender.com/api/admin/setup', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -26,7 +26,7 @@ async function createAdmin() {
       console.log('✅ Admin account created successfully!');
       console.log('📧 Email:', adminDetails.email);
       console.log('🔑 Password:', adminDetails.password);
-      console.log('🌐 Login at: http://localhost:5000/login');
+      console.log('🌐 Login at: https://kotulo.onrender.com/login');
       console.log('\n🎉 You can now log in as admin!');
     } else {
       console.log('❌ Error creating admin account:');
