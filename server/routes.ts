@@ -814,14 +814,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update product
+  // Update product
   app.patch("/api/products/:id", async (req, res) => {
     try {
-      const product = await storage.updateProduct(req.params.id, req.body);
+      // Remove fields that shouldn't be updated directly
+      const { id, createdAt, farmerId, status, ...updates } = req.body;
+      const product = await storage.updateProduct(req.params.id, updates);
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
       }
       res.json(product);
     } catch (error) {
+      console.error("Update product error:", error);
       res.status(500).json({ message: "Failed to update product" });
     }
   });
