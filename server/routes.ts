@@ -5,10 +5,12 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import os from "os";
+import { v2 as cloudinary } from "cloudinary";
 import { storage } from "./storage";
 import { insertOrderSchema, insertUserSchema, insertFarmerSchema, insertProductSchema, ProductCategory, UserRole, OrderStatus } from "@shared/schema";
 import { z } from "zod";
 import { hashPassword, comparePassword, generateToken, requireAuth } from "./auth";
+
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // === FILE UPLOAD CONFIGURATION ===
@@ -20,20 +22,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Configure multer for file uploads
   const upload = multer({
-    storage: multer.diskStorage({
-      destination: (req, file, cb) => {
-        cb(null, uploadsDir);
-      },
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-      }
-    }),
+    storage: multer.memoryStorage(),
     limits: {
-      fileSize: 10 * 1024 * 1024, // 10MB limit per file
+      fileSize: 10 * 1024 * 1024,
     },
     fileFilter: (req, file, cb) => {
-      // Allow only image files
       if (file.mimetype.startsWith('image/')) {
         cb(null, true);
       } else {
@@ -43,6 +36,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // === FILE UPLOAD ROUTES ===
+  // Configure Cloudinary
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+
   // Upload single image
   app.post("/api/upload/image", upload.single('image'), async (req, res) => {
     try {
@@ -50,12 +50,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "No file uploaded" });
       }
 
-      // Return the file path or URL
-      const filePath = `/uploads/${req.file.filename}`;
+      // Upload to Cloudinary
+      const result = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          { folder: "kotulo/products", resource_type: "image" },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        ).end(req.file!.buffer);
+      }) as any;
+
       res.json({ 
         message: "File uploaded successfully",
-        filePath: filePath,
-        filename: req.file.filename
+        filePath: result.secure_url,
+        filename: result.public_id
       });
     } catch (error) {
       console.error("Upload error:", error);
