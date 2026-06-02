@@ -284,7 +284,7 @@ export type InsertDelivery = z.infer<typeof insertDeliverySchema>;
 // Enums and constants
 export const UserRole = z.enum(['household', 'b2b', 'vendor', 'operations', 'admin']);
 export const BusinessType = z.enum(['supermarket', 'restaurant', 'vendor']);
-export const ProductCategory = z.enum(['vegetables', 'meat', 'dairy']);
+export const ProductCategory = z.enum(['vegetables', 'meat', 'dairy', 'merchandise', 'clothing', 'fruits']);
 export const ProductGrade = z.enum(['A', 'B', 'premium']);
 export const TemperatureRange = z.enum(['2-4°C', 'frozen', 'ambient']);
 export const OrderStatus = z.enum(['pending', 'confirmed', 'picking', 'picked', 'out_for_delivery', 'delivered', 'cancelled']);
