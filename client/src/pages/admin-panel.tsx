@@ -3947,6 +3947,7 @@ export default function AdminPanel() {
                       >
                         <option value="">Select Category</option>
                         <option value="vegetables">🥬 Vegetables</option>
+                        <option value="fruits">🍎 Fruits</option>
                         <option value="meat">🥩 Meat</option>
                         <option value="dairy">🥛 Dairy</option>
                         <option value="merchandise">👕 Kotulo Merchandise</option>
@@ -4203,6 +4204,7 @@ export default function AdminPanel() {
                         className="w-full p-2 border rounded-md"
                       >
                         <option value="vegetables">Vegetables</option>
+                        <option value="fruits">Fruits</option>
                         <option value="meat">Meat</option>
                         <option value="dairy">Dairy</option>
                         <option value="merchandise">Kotulo Merchandise</option>
