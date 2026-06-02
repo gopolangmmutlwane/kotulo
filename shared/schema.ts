@@ -224,6 +224,8 @@ export const insertFarmerSchema = createInsertSchema(farmers).omit({
 export const insertProductSchema = createInsertSchema(products).omit({
   id: true,
   createdAt: true,
+  status: true,
+  rejectionReason: true,
 });
 
 export const insertProductLotSchema = createInsertSchema(productLots).omit({
