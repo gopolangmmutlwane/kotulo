@@ -87,7 +87,7 @@ export const farmers = pgTable("farmers", {
 // Enhanced products with lot tracking
 export const products = pgTable("products", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  farmerId: varchar("farmer_id").notNull().references(() => farmers.id),
+  farmerId: varchar("farmer_id").references(() => farmers.id),
   name: text("name").notNull(),
   description: text("description"),
   category: text("category").notNull(), // 'vegetables', 'meat', 'dairy'
