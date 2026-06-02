@@ -796,12 +796,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Admin products approved immediately, others need review
-      const userRole = (req.session as any)?.user?.role || 
-        (req.session?.userId ? (await storage.getUser(req.session.userId))?.role : null);
-      const status = userRole === "admin" ? "approved" : "pending";
+      const userId = req.session?.userId;
+      const currentUser = userId ? await storage.getUser(userId) : null;
+      const isAdmin = currentUser?.role === "admin";
+      const status = isAdmin ? "approved" : "pending";
 
       const product = await storage.createProduct({
         ...validation.data,
+        farmerId: isAdmin ? null : validation.data.farmerId,
         status,
       } as any);
       res.status(201).json(product);
