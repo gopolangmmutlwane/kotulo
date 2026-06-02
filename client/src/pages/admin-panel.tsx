@@ -524,7 +524,7 @@ export default function AdminPanel() {
       // Use admin's ID as farmerId for admin products
       const adminProductData = {
         ...productData,
-        farmerId: "admin", // Special ID for admin products
+        farmerId: null, // Special ID for admin products
       };
       const res = await apiRequest("POST", "/api/products", adminProductData);
       return res.json();
