@@ -647,7 +647,7 @@ export default function AdminPanel() {
       const filePath = await uploadImage(compressedFile);
       
       // Create preview URL
-      const previewUrl = filePath.startsWith('/') ? filePath : `/${filePath}`;
+      const previewUrl = filePath.startsWith('http') ? filePath : `/${filePath}`;
       
       setUploadedImagePreview(previewUrl);
       setEditProduct(prev => prev ? { ...prev, image: previewUrl } : null);
