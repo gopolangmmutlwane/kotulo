@@ -70,7 +70,7 @@ export default function Signup() {
         data.businessName
       );
       // Show message about approval if vendor/farmer
-      if (data.role === "vendor" || data.role === "farmer") {
+      if (data.role === "vendor" || data.role === "farmer" || data.role === "b2b"){
         // The toast will show the approval message
       }
       setLocation("/login");
@@ -216,7 +216,7 @@ export default function Signup() {
                         </RadioGroup>
                       </FormControl>
                       <FormDescription>
-                        {selectedRole === "vendor" || selectedRole === "farmer"
+                        {selectedRole === "vendor" || selectedRole === "farmer" || selectedRole === "b2b"
                           ? "Your account will need admin approval before you can list products."
                           : "Start shopping immediately after signup."}
                       </FormDescription>

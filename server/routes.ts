@@ -294,8 +294,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         phone: phone || null,
         role: userRole,
         businessName: businessName || null,
-        businessType: userRole === "farmer" ? "farm" : userRole === "vendor" ? "vendor" : null,
-        approvalStatus: "approved",
+        businessType: userRole === "farmer" ? "farm" : userRole === "vendor" ? "vendor" : userRole === "b2b" ? "b2b" : null,
+        approvalStatus: (userRole === "farmer" || userRole === "vendor" || userRole === "b2b") ? "pending" : "approved",
         emailVerified: !platformConfig.general.requireEmailVerification, // Auto-verify if not required
       });
 
