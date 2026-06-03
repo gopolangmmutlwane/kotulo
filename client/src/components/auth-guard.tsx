@@ -21,7 +21,8 @@ export function AuthGuard({ children, requiredRole, fallbackPath = "/login" }: A
     }
 
     // Redirect users without required role
-    if (requiredRole && user?.role !== requiredRole) {
+    const allowedRoles = requiredRole ? requiredRole.split("|") : [];
+    if (requiredRole && !allowedRoles.includes(user?.role || "")) {
       // For admin panel access, don't redirect admin users - let them access admin panel
       if (requiredRole === "admin" && user?.role === "admin") {
         // Admin user trying to access admin panel - allow access
@@ -60,7 +61,8 @@ export function AuthGuard({ children, requiredRole, fallbackPath = "/login" }: A
     );
   }
 
-  if (requiredRole && user?.role !== requiredRole) {
+  const allowedRoles = requiredRole ? requiredRole.split("|") : [];
+  if (requiredRole && !allowedRoles.includes(user?.role || "")) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
