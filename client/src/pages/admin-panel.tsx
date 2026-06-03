@@ -333,6 +333,11 @@ export default function AdminPanel() {
     queryKey: ["/api/products"],
   });
 
+  // Fetch pending products
+  const { data: pendingProducts = [] } = useQuery<Product[]>({
+    queryKey: ["/api/products/pending"],
+  });
+
   // Fetch all orders for analytics
   const { data: allOrders = [] } = useQuery<any[]>({
     queryKey: ["/api/orders"],
@@ -568,6 +573,35 @@ export default function AdminPanel() {
         description: error.message || "Failed to update product",
         variant: "destructive",
       });
+    },
+  });
+
+  const approveProductMutation = useMutation({
+    mutationFn: async (productId: string) => {
+      const res = await apiRequest("PATCH", `/api/products/${productId}/approve`);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products/pending"] });
+      toast({ title: "Product Approved", description: "Product is now live on the shop" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const rejectProductMutation = useMutation({
+    mutationFn: async (productId: string) => {
+      const res = await apiRequest("PATCH", `/api/products/${productId}/reject`, { reason: "Does not meet platform requirements" });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products/pending"] });
+      toast({ title: "Product Rejected", description: "Farmer has been notified" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     },
   });
 
@@ -1941,6 +1975,65 @@ export default function AdminPanel() {
                   Add Product
                 </Button>
               </div>
+
+              {/* Pending Products Section */}
+              {pendingProducts.length > 0 && (
+                <Card className="border-l-4 border-l-secondary-foreground">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-secondary-foreground" />
+                      Pending Approval ({pendingProducts.length})
+                    </CardTitle>
+                    <CardDescription>Products submitted by farmers waiting for your review</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {pendingProducts.map((product) => (
+                        <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg bg-secondary/5">
+                          <div className="flex items-center space-x-4">
+                            {product.image && (
+                              <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded-lg" />
+                            )}
+                            <div>
+                              <h4 className="font-semibold">{product.name}</h4>
+                              <p className="text-sm text-muted-foreground capitalize">{product.category} • R{product.retailPrice}/{product.unit}</p>
+                              <p className="text-sm text-muted-foreground">{product.description?.slice(0, 60)}...</p>
+                            </div>
+                          </div>
+                          <div className="flex space-x-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleViewProduct(product)}
+                            >
+                              <Eye className="w-4 h-4 mr-1" />
+                              View
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                              onClick={() => approveProductMutation.mutate(product.id)}
+                              disabled={approveProductMutation.isPending}
+                            >
+                              <CheckCircle className="w-4 h-4 mr-1" />
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => rejectProductMutation.mutate(product.id)}
+                              disabled={rejectProductMutation.isPending}
+                            >
+                              <XCircle className="w-4 h-4 mr-1" />
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Product Search and Filter */}
               <Card>
