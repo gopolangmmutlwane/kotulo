@@ -30,6 +30,7 @@ export default function B2BOrdering() {
   const { user } = useAuth();
   const isVendor = user?.role === "vendor";
   const isB2B = user?.role === "b2b";
+  const isPending = user?.approvalStatus === "pending";
 
   // Get all products (for vendors to stock from farmers)
   const { data: products = [] } = useQuery<Product[]>({
@@ -77,6 +78,46 @@ export default function B2BOrdering() {
             <CardContent className="p-8 text-center">
               <p className="text-muted-foreground mb-4">This page is only available for B2B buyers and vendors</p>
               <Button onClick={() => window.location.href = "/dashboard"}>Go to Dashboard</Button>
+            </CardContent>
+          </Card>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (isPending) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <Card className="max-w-2xl mx-auto">
+            <CardHeader>
+              <div className="flex items-center space-x-3">
+                <Building2 className="w-8 h-8 text-secondary-foreground" />
+                <CardTitle>Account Pending Approval</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                Your account is pending admin approval. Complete your application to get access to bulk ordering and wholesale pricing.
+              </p>
+              <ul className="list-disc list-inside space-y-2 mb-4">
+                <li>Submit business registration documents</li>
+                <li>Provide business description and address</li>
+                <li>Set up payment terms and credit limit</li>
+              </ul>
+              <div className="flex space-x-2">
+                <Button onClick={() => window.location.href = "/application"} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                  Complete Application
+                </Button>
+                <Button variant="outline" onClick={() => window.location.href = "/"}>
+                  Return Home
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground mt-4">
+                You'll be notified once your account has been reviewed and approved.
+              </p>
             </CardContent>
           </Card>
         </div>
