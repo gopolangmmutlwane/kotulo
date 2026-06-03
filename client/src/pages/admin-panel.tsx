@@ -338,6 +338,11 @@ export default function AdminPanel() {
     queryKey: ["/api/products/pending"],
   });
 
+  // Fetch farmers for name lookup
+  const { data: allFarmers = [] } = useQuery<any[]>({
+    queryKey: ["/api/farmers"],
+  });
+
   // Fetch all orders for analytics
   const { data: allOrders = [] } = useQuery<any[]>({
     queryKey: ["/api/orders"],
@@ -1997,6 +2002,9 @@ export default function AdminPanel() {
                             <div>
                               <h4 className="font-semibold">{product.name}</h4>
                               <p className="text-sm text-muted-foreground capitalize">{product.category} • R{product.retailPrice}/{product.unit}</p>
+                              <p className="text-sm font-medium text-primary">
+                                By: {allFarmers.find(f => f.id === product.farmerId)?.name || "Unknown Farmer"}
+                              </p>
                               <p className="text-sm text-muted-foreground">{product.description?.slice(0, 60)}...</p>
                             </div>
                           </div>
