@@ -26,6 +26,7 @@ export { upload };
 
 // Session configuration
 const PgSession = connectPgSimple(session);
+app.set('trust proxy', 1);
 app.use(
   session({
     store: new PgSession({
