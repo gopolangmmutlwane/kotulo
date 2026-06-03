@@ -79,7 +79,7 @@ function AddProductContent() {
     mutationFn: async () => {
       const farmers = await fetch("/api/farmers").then(r => r.json());
       const farmerProfile = farmers.find((f: any) => f.userId === user?.id);
-      const farmerId = farmerProfile?.id || user?.id || "admin";
+      const farmerId = farmerProfile?.id || user?.id || null;
 
       const productData = {
         farmerId,
