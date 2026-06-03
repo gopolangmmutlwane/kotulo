@@ -209,7 +209,7 @@ export default function FarmerDashboard() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation("/vendor")}>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation("/add-product")}>
             <CardContent className="p-6 text-center">
               <Package className="w-8 h-8 text-farm-green mx-auto mb-2" />
               <h3 className="font-semibold">Manage Products</h3>
@@ -217,7 +217,7 @@ export default function FarmerDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation("/vendor")}>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation("/farmer-dashboard")}>
             <CardContent className="p-6 text-center">
               <TrendingUp className="w-8 h-8 text-primary mx-auto mb-2" />
               <h3 className="font-semibold">View Analytics</h3>
@@ -225,7 +225,7 @@ export default function FarmerDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation("/b2b")}>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation("/b2b-ordering")}>
             <CardContent className="p-6 text-center">
               <ShoppingCart className="w-8 h-8 text-accent mx-auto mb-2" />
               <h3 className="font-semibold">Stock from Farmers</h3>
@@ -283,7 +283,7 @@ export default function FarmerDashboard() {
                   </div>
                 ))}
                 {products.length > 5 && (
-                  <Button variant="outline" className="w-full" onClick={() => setLocation("/vendor")}>
+                  <Button variant="outline" className="w-full" onClick={() => setLocation("/add-product")}>
                     View All Products
                   </Button>
                 )}
