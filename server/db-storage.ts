@@ -75,6 +75,9 @@ export class DbStorage implements IStorage {
   async getFeaturedProducts(): Promise<Product[]> {
     return db.select().from(schema.products).where(and(eq(schema.products.featured, true), eq(schema.products.isActive, true), eq(schema.products.status, "approved")));
   }
+  async getPendingProducts(): Promise<Product[]> {
+    return db.select().from(schema.products).where(eq(schema.products.status, "pending"));
+  }
   async createProduct(product: InsertProduct): Promise<Product> {
     const result = await db.insert(schema.products).values(product).returning();
     return result[0];

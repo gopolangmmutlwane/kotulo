@@ -796,6 +796,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get pending products (admin only)
+  app.get("/api/products/pending", async (req, res) => {
+    try {
+      const products = await storage.getPendingProducts();
+      res.json(products);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch pending products" });
+    }
+  });
+
   // Get featured products
   app.get("/api/products/featured", async (req, res) => {
     try {
@@ -876,6 +886,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Product deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Failed to delete product" });
+    }
+  });
+
+  // Approve product
+  app.patch("/api/products/:id/approve", async (req, res) => {
+    try {
+      const product = await storage.updateProduct(req.params.id, { status: "approved" });
+      if (!product) return res.status(404).json({ message: "Product not found" });
+      res.json(product);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to approve product" });
+    }
+  });
+
+  // Reject product
+  app.patch("/api/products/:id/reject", async (req, res) => {
+    try {
+      const { reason } = req.body;
+      const product = await storage.updateProduct(req.params.id, { 
+        status: "rejected",
+        rejectionReason: reason || "Does not meet platform requirements"
+      });
+      if (!product) return res.status(404).json({ message: "Product not found" });
+      res.json(product);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to reject product" });
     }
   });
 

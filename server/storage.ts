@@ -26,6 +26,7 @@ export interface IStorage {
   getProducts(category?: string, farmerId?: string): Promise<Product[]>;
   getProduct(id: string): Promise<Product | undefined>;
   getFeaturedProducts(): Promise<Product[]>;
+  getPendingProducts(): Promise<Product[]>;
   createProduct(product: InsertProduct): Promise<Product>;
   updateProduct(id: string, updates: Partial<Product>): Promise<Product | undefined>;
   deleteProduct(id: string): Promise<boolean>;
