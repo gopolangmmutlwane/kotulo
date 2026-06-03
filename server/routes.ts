@@ -574,12 +574,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Approve user
   app.patch("/api/users/:id/approve", async (req, res) => {
     try {
-      const updated = await storage.updateUser(req.params.id, { approvalStatus: "approved" });
-      if (!updated) {
+      const user = await storage.getUser(req.params.id);
+      if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
+
+      const updated = await storage.updateUser(req.params.id, { approvalStatus: "approved" });
+
+      // Auto-create farmer profile if user is a farmer
+      if (user.role === "farmer") {
+        const farmers = await storage.getFarmers();
+        const existingProfile = farmers.find(f => f.userId === user.id);
+        if (!existingProfile) {
+          await storage.createFarmer({
+            userId: user.id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone || null,
+            location: "South Africa",
+            province: "Gauteng",
+            description: user.businessDescription || `${user.name}'s farm`,
+            farmType: user.businessType || "Mixed Farm",
+            verified: true,
+            consignToHub: false,
+            selfFulfill: true,
+            commissionRate: "10.00",
+            adBudget: "0.00",
+          } as any);
+        }
+      }
+
       res.json(updated);
     } catch (error) {
+      console.error("Approve user error:", error);
       res.status(500).json({ message: "Failed to approve user" });
     }
   });
