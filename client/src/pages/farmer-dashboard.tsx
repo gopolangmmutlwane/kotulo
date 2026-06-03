@@ -175,7 +175,7 @@ export default function FarmerDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Active Products</p>
-                  <p className="text-2xl font-bold">{products.filter(p => p.isActive).length}</p>
+                  <p className="text-2xl font-bold">{products.filter(p => (p as any).status === "approved").length}</p>
                 </div>
                 <CheckCircle2 className="w-8 h-8 text-accent" />
               </div>
@@ -272,8 +272,12 @@ export default function FarmerDashboard() {
                     </div>
                     <div className="flex items-center space-x-2">
                       {product.featured && <Badge>Featured</Badge>}
-                      <Badge variant={product.isActive ? "default" : "secondary"}>
-                        {product.isActive ? "Active" : "Inactive"}
+                      <Badge variant={
+                        (product as any).status === "approved" ? "default" : 
+                        (product as any).status === "rejected" ? "destructive" : "secondary"
+                      }>
+                        {(product as any).status === "approved" ? "Active" : 
+                          (product as any).status === "rejected" ? "Rejected" : "Pending Approval"}
                       </Badge>
                     </div>
                   </div>
