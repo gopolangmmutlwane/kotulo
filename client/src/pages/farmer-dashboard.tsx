@@ -71,7 +71,7 @@ export default function FarmerDashboard() {
 
   // Get farmer's products
   const { data: products = [] } = useQuery<Product[]>({
-    queryKey: farmerProfile ? ["/api/products", undefined, farmerProfile.id] : [],
+    queryKey: farmerProfile ? [`/api/products?farmerId=${farmerProfile.id}`] : [],
     enabled: !!farmerProfile,
   });
 
