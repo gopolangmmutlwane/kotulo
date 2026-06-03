@@ -59,11 +59,14 @@ export class DbStorage implements IStorage {
     return result[0];
   }
   async getProducts(category?: string, farmerId?: string): Promise<Product[]> {
-    let query = db.select().from(schema.products).where(and(eq(schema.products.isActive, true), eq(schema.products.status, "approved")));
-    if (category) {
-      query = db.select().from(schema.products).where(and(eq(schema.products.isActive, true), eq(schema.products.status, "approved"), eq(schema.products.category, category)));
+    if (farmerId) {
+      // Farmers can see all their own products regardless of status
+      return db.select().from(schema.products).where(eq(schema.products.farmerId, farmerId));
     }
-    return query;
+    if (category) {
+      return db.select().from(schema.products).where(and(eq(schema.products.isActive, true), eq(schema.products.status, "approved"), eq(schema.products.category, category)));
+    }
+    return db.select().from(schema.products).where(and(eq(schema.products.isActive, true), eq(schema.products.status, "approved")));
   }
   async getProduct(id: string): Promise<Product | undefined> {
     const result = await db.select().from(schema.products).where(eq(schema.products.id, id));
