@@ -225,7 +225,7 @@ export default function FarmerDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation("/b2b-ordering")}>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation("/b2b")}>
             <CardContent className="p-6 text-center">
               <ShoppingCart className="w-8 h-8 text-accent mx-auto mb-2" />
               <h3 className="font-semibold">Stock from Farmers</h3>
@@ -258,7 +258,7 @@ export default function FarmerDashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {products.slice(0, 5).map((product) => (
+                {products.map((product) => (
                   <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center space-x-4">
                       {product.image && (
