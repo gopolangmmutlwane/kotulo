@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -268,6 +269,9 @@ export default function FarmerDashboard() {
                         <p className="font-semibold">{product.name}</p>
                         <p className="text-sm text-muted-foreground">{product.category}</p>
                         <p className="text-xs text-muted-foreground">R {parseFloat(product.retailPrice as any).toFixed(2)}</p>
+                        {(product as any).status === "rejected" && (
+                          <p className="text-xs text-destructive">Rejected — please delete and resubmit</p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -279,14 +283,23 @@ export default function FarmerDashboard() {
                         {(product as any).status === "approved" ? "Active" : 
                           (product as any).status === "rejected" ? "Rejected" : "Pending Approval"}
                       </Badge>
+                      {(product as any).status === "rejected" && (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={async () => {
+                            if (confirm("Delete this rejected product?")) {
+                              await apiRequest("DELETE", `/api/products/${product.id}`);
+                              window.location.reload();
+                            }
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      )}
                     </div>
                   </div>
                 ))}
-                {products.length > 5 && (
-                  <Button variant="outline" className="w-full" onClick={() => setLocation("/add-product")}>
-                    View All Products
-                  </Button>
-                )}
               </div>
             )}
           </CardContent>
