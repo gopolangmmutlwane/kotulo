@@ -27,6 +27,8 @@ import ForgotPassword from "@/pages/forgot-password";
 import ResetPassword from "@/pages/reset-password";
 import AddProduct from "@/pages/add-product";
 import FarmerAnalytics from "@/pages/farmer-analytics";
+import PaymentSuccess from "@/pages/payment-success";
+import PaymentCancelled from "@/pages/payment-cancelled";
 
 function Router() {
   const [location] = useLocation();
@@ -50,6 +52,8 @@ function Router() {
       <Route path="/add-product" component={AddProduct} />
       <Route path="/add-product" component={AddProduct} />
       <Route path="/farmer-analytics" component={FarmerAnalytics} />
+      <Route path="/payment/success" component={PaymentSuccess} />
+      <Route path="/payment/cancelled" component={PaymentCancelled} />
       <Route path="/operations" component={Operations} />
       <Route path="/admin" component={AdminPanel} />
       <Route path="/login" component={Login} />

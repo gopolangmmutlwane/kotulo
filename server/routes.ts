@@ -76,19 +76,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/uploads', express.static(uploadsDir));
 
   // === PLATFORM CONFIGURATION ===
-  // In-memory storage for platform settings (in production, use database)
+  // PayFast configuration (sandbox credentials for testing)
+  const PAYFAST_MERCHANT_ID = process.env.PAYFAST_MERCHANT_ID || "10000100";
+  const PAYFAST_MERCHANT_KEY = process.env.PAYFAST_MERCHANT_KEY || "46f0cd694581a";
+  const PAYFAST_PASSPHRASE = process.env.PAYFAST_PASSPHRASE || "jt7NOE43FZPn";
+  const PAYFAST_SANDBOX = process.env.PAYFAST_SANDBOX !== "false"; // true by default
+  const PAYFAST_URL = PAYFAST_SANDBOX 
+    ? "https://sandbox.payfast.co.za/eng/process" 
+    : "https://www.payfast.co.za/eng/process";
+
   let platformConfig = {
     general: {
-      platformName: "Kotulo",
-      platformVersion: "2.0.1",
-      maintenanceMode: false,
       allowRegistration: true,
       requireEmailVerification: false,
       defaultUserRole: "household"
     },
     payment: {
       enablePayments: true,
-      paymentGateway: "stripe",
+      paymentGateway: "payfast",
       currency: "ZAR",
       minimumOrderAmount: 100,
       maximumOrderAmount: 50000,
@@ -995,6 +1000,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Notification marked as read" });
     } catch (error) {
       res.status(500).json({ message: "Failed to mark notification as read" });
+    }
+  });
+
+// PayFast payment initiation
+  app.post("/api/payment/payfast/initiate", async (req, res) => {
+    try {
+      const { orderId, amount, customerEmail, customerName } = req.body;
+      if (!orderId || !amount) {
+        return res.status(400).json({ message: "Missing order details" });
+      }
+
+      const crypto = await import("crypto");
+      const siteUrl = process.env.SITE_URL || "https://kotulo.onrender.com";
+
+      const data: Record<string, string> = {
+        merchant_id: PAYFAST_MERCHANT_ID,
+        merchant_key: PAYFAST_MERCHANT_KEY,
+        return_url: `${siteUrl}/payment/success?orderId=${orderId}`,
+        cancel_url: `${siteUrl}/payment/cancelled?orderId=${orderId}`,
+        notify_url: `${siteUrl}/api/payment/payfast/notify`,
+        name_first: customerName?.split(" ")[0] || "Customer",
+        name_last: customerName?.split(" ").slice(1).join(" ") || "",
+        email_address: customerEmail || "",
+        m_payment_id: orderId,
+        amount: parseFloat(amount).toFixed(2),
+        item_name: `Kotulo Order #${orderId.slice(0, 8)}`,
+      };
+
+      // Generate signature
+      const signatureString = Object.entries(data)
+        .map(([k, v]) => `${k}=${encodeURIComponent(v.trim()).replace(/%20/g, "+")}`)
+        .join("&") + `&passphrase=${encodeURIComponent(PAYFAST_PASSPHRASE.trim()).replace(/%20/g, "+")}`;
+      
+      const signature = crypto.createHash("md5").update(signatureString).digest("hex");
+      data.signature = signature;
+
+      res.json({ payfastUrl: PAYFAST_URL, data });
+    } catch (error) {
+      console.error("PayFast initiation error:", error);
+      res.status(500).json({ message: "Failed to initiate payment" });
+    }
+  });
+
+  // PayFast payment notification (ITN)
+  app.post("/api/payment/payfast/notify", async (req, res) => {
+    try {
+      const { m_payment_id, payment_status } = req.body;
+      if (payment_status === "COMPLETE" && m_payment_id) {
+        await storage.updateOrder(m_payment_id, { 
+          status: "confirmed",
+          paymentStatus: "paid",
+          paymentMethod: "payfast"
+        });
+      }
+      res.status(200).send("OK");
+    } catch (error) {
+      console.error("PayFast notify error:", error);
+      res.status(500).send("Error");
     }
   });
 

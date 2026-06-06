@@ -17,6 +17,7 @@ import { formatPrice } from "@/lib/currency";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { useMutation as useQueryMutation } from "@tanstack/react-query";
 import { InsertOrder } from "@shared/schema";
 
 const checkoutSchema = z.object({
@@ -32,6 +33,7 @@ function CheckoutContent() {
   const [orderCompleted, setOrderCompleted] = useState(false);
   const [orderId, setOrderId] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const { items, totalPrice, clearCart } = useCart();
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
@@ -52,15 +54,50 @@ function CheckoutContent() {
       const response = await apiRequest("POST", "/api/orders", orderData);
       return response.json();
     },
-    onSuccess: (order) => {
-      setOrderId(order.id);
-      setOrderCompleted(true);
+    onSuccess: async (order) => {
       clearCart();
       queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
-      toast({
-        title: "Order Placed Successfully!",
-        description: `Order #${order.id} has been placed.`,
-      });
+
+      if (paymentMethod === "payfast") {
+        setIsRedirecting(true);
+        try {
+          const res = await fetch("/api/payment/payfast/initiate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              orderId: order.id,
+              amount: order.total,
+              customerEmail: order.customerEmail,
+              customerName: order.customerName,
+            }),
+          });
+          const { payfastUrl, data } = await res.json();
+
+          // Create and submit form to PayFast
+          const form = document.createElement("form");
+          form.method = "POST";
+          form.action = payfastUrl;
+          Object.entries(data).forEach(([key, value]) => {
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = key;
+            input.value = value as string;
+            form.appendChild(input);
+          });
+          document.body.appendChild(form);
+          form.submit();
+        } catch (error) {
+          setIsRedirecting(false);
+          toast({ title: "Payment Error", description: "Could not initiate payment.", variant: "destructive" });
+        }
+      } else {
+        setOrderId(order.id);
+        setOrderCompleted(true);
+        toast({
+          title: "Order Placed Successfully!",
+          description: `Order #${order.id} has been placed.`,
+        });
+      }
     },
     onError: (error) => {
       toast({
@@ -338,11 +375,18 @@ function CheckoutContent() {
                   <Button
                     type="submit"
                     className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3"
-                    disabled={createOrderMutation.isPending}
+                    disabled={createOrderMutation.isPending || isRedirecting}
                     data-testid="button-place-order"
                   >
-                    {createOrderMutation.isPending ? (
+                    {isRedirecting ? (
+                      "Redirecting to PayFast..."
+                    ) : createOrderMutation.isPending ? (
                       "Placing Order..."
+                    ) : paymentMethod === "payfast" ? (
+                      <>
+                        <CreditCard className="mr-2 h-5 w-5" />
+                        Pay Now ({formatPrice(totalPrice)})
+                      </>
                     ) : (
                       <>
                         <CreditCard className="mr-2 h-5 w-5" />
