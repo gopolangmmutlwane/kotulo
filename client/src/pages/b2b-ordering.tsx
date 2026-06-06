@@ -386,10 +386,14 @@ export default function B2BOrdering() {
                                 type="number"
                                 placeholder={`Qty (${product.unit})`}
                                 min={product.minOrderQty || undefined}
+				value={quantities[product.id] || ""}
+                                onChange={e => setQuantities(prev => ({ ...prev, [product.id]: e.target.value }))}
                                 data-testid={`input-quantity-${product.id}`}
                               />
                               <Button
                                 size="sm"
+				className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                                onClick={() => addToOrder(product)}
                                 data-testid={`button-add-${product.id}`}
                               >
                                 Add to Order
@@ -619,3 +623,4 @@ export default function B2BOrdering() {
     </div>
   );
 }
+
