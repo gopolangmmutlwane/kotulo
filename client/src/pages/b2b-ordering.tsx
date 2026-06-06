@@ -27,6 +27,37 @@ import {
 
 export default function B2BOrdering() {
   const [orderType, setOrderType] = useState("one_time");
+  const [orderItems, setOrderItems] = useState<Record<string, number>>({});
+  const [quantities, setQuantities] = useState<Record<string, string>>({});
+  const [showOrderSummary, setShowOrderSummary] = useState(false);
+
+  const addToOrder = (product: Product) => {
+    const qty = parseFloat(quantities[product.id] || "0");
+    if (!qty || qty < (product.minOrderQty || 1)) {
+      alert(`Minimum order quantity is ${product.minOrderQty} ${product.unit}`);
+      return;
+    }
+    setOrderItems(prev => ({ ...prev, [product.id]: (prev[product.id] || 0) + qty }));
+    setQuantities(prev => ({ ...prev, [product.id]: "" }));
+    setShowOrderSummary(true);
+  };
+
+  const removeFromOrder = (productId: string) => {
+    setOrderItems(prev => {
+      const updated = { ...prev };
+      delete updated[productId];
+      return updated;
+    });
+  };
+
+  const getTotalItems = () => Object.keys(orderItems).length;
+  const getTotalCost = (productsList: Product[]) => {
+    return Object.entries(orderItems).reduce((sum, [id, qty]) => {
+      const product = productsList.find(p => p.id === id);
+      if (!product) return sum;
+      return sum + (parseFloat(product.wholesalePrice as any || product.retailPrice as any) * qty);
+    }, 0);
+  };
   const { user } = useAuth();
   const isVendor = user?.role === "vendor";
   const isB2B = user?.role === "b2b";
@@ -135,6 +166,50 @@ export default function B2BOrdering() {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">
+            {/* Order Summary Panel */}
+              {showOrderSummary && getTotalItems() > 0 && (
+                <Card className="border-l-4 border-l-primary mb-6">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Order Summary ({getTotalItems()} items)</CardTitle>
+                      <Button variant="ghost" size="sm" onClick={() => setShowOrderSummary(false)}>✕</Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {Object.entries(orderItems).map(([productId, qty]) => {
+                        const product = [...farmerProducts, ...products].find(p => p.id === productId);
+                        if (!product) return null;
+                        const subtotal = parseFloat(product.wholesalePrice as any || product.retailPrice as any) * qty;
+                        return (
+                          <div key={productId} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                            <div>
+                              <p className="font-semibold">{product.name}</p>
+                              <p className="text-sm text-muted-foreground">{qty} {product.unit} × R{parseFloat(product.wholesalePrice as any || product.retailPrice as any).toFixed(2)}</p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <p className="font-bold text-primary">R{subtotal.toFixed(2)}</p>
+                              <Button variant="ghost" size="sm" onClick={() => removeFromOrder(productId)}>✕</Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="border-t mt-4 pt-4 flex items-center justify-between">
+                      <div>
+                        <p className="text-muted-foreground text-sm">Total (Wholesale)</p>
+                        <p className="text-2xl font-bold text-primary">R{getTotalCost([...farmerProducts, ...products]).toFixed(2)}</p>
+                      </div>
+                      <Button 
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground px-8"
+                        onClick={() => alert("Purchase order feature coming soon!")}
+                      >
+                        Confirm Order
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             {isVendor || isFarmer? "Stock from Farmers" : "B2B Ordering Portal"}
           </h1>
           <p className="text-muted-foreground">
@@ -160,7 +235,18 @@ export default function B2BOrdering() {
               <h2 className="text-2xl font-bold">
                 {isVendor ? "Available Products from Farmers" : "Bulk Product Catalog"}
               </h2>
-              <Button data-testid="button-create-order">Create Purchase Order</Button>
+              <Button 
+                data-testid="button-create-order"
+                onClick={() => setShowOrderSummary(!showOrderSummary)}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground relative"
+              >
+                Create Purchase Order
+                {getTotalItems() > 0 && (
+                  <span className="ml-2 bg-white text-primary rounded-full px-2 py-0.5 text-xs font-bold">
+                    {getTotalItems()}
+                  </span>
+                )}
+              </Button>
             </div>
 
             {isVendor ? (
@@ -214,15 +300,18 @@ export default function B2BOrdering() {
                               />
                             )}
                             <div className="flex space-x-2">
-                              <Input 
-                                type="number" 
-                                placeholder={`Qty (${product.unit})`} 
+                              <Input
+                                type="number"
+                                placeholder={`Qty (${product.unit})`}
                                 min={product.minOrderQty || undefined}
+                                value={quantities[product.id] || ""}
+                                onChange={e => setQuantities(prev => ({ ...prev, [product.id]: e.target.value }))}
                                 data-testid={`input-quantity-${product.id}`}
                               />
-                              <Button 
-                                size="sm" 
+                              <Button
+                                size="sm"
                                 className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                                onClick={() => addToOrder(product)}
                                 data-testid={`button-add-${product.id}`}
                               >
                                 Add to Order
