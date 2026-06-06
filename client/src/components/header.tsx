@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Search, ShoppingCart, User, Menu, Sprout, LogOut } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, Sprout, LogOut, Bell } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -26,6 +27,14 @@ export function Header() {
   const [cartOpen, setCartOpen] = useState(false);
   const { totalItems } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
+
+  // Fetch unread notifications for farmers
+  const { data: notifications = [] } = useQuery<any[]>({
+    queryKey: ["/api/notifications"],
+    enabled: isAuthenticated && user?.role === "farmer",
+    refetchInterval: 30000,
+  });
+  const unreadCount = notifications.filter((n: any) => !n.read).length;
 
   // Role-based navigation
   const getNavigation = () => {
@@ -114,6 +123,21 @@ export function Header() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
+           {isAuthenticated && user?.role === "farmer" && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative"
+                onClick={() => setLocation("/farmer-dashboard")}
+              >
+                <Bell className="h-6 w-6" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-destructive text-primary-foreground text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
+                    {unreadCount}
+                  </span>
+                )}
+              </Button>
+            )}
            <button
             onClick={(e) => {
               e.preventDefault();
