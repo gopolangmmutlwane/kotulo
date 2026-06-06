@@ -26,6 +26,9 @@ export const users = pgTable("users", {
   businessDescription: text("business_description"), // Business description
   applicationDocuments: jsonb("application_documents"), // {license: "url", certificate: "url", etc.}
   applicationSubmittedAt: timestamp("application_submitted_at"), // When application was submitted
+  businessModel: text("business_model"), // 'reseller' or 'delivery_partner' - for vendors
+  serviceArea: text("service_area"), // City/area vendor operates in
+  isOnline: boolean("is_online").default(false), // Vendor availability toggle
   emailVerified: boolean("email_verified").default(false),
   emailVerificationToken: text("email_verification_token"),
   passwordResetToken: text("password_reset_token"),
