@@ -937,9 +937,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const order = await storage.createOrder(validation.data);
+
+      // Notify farmers whose products were ordered
+      try {
+        const items = (validation.data as any).items || [];
+        const notifiedFarmers = new Set<string>();
+        for (const item of items) {
+          if (!item.productId) continue;
+          const product = await storage.getProduct(item.productId);
+          if (!product) continue;
+          const farmers = await storage.getFarmers();
+          const farmer = farmers.find(f => f.id === product.farmerId);
+          if (!farmer || !farmer.userId || notifiedFarmers.has(farmer.userId)) continue;
+          notifiedFarmers.add(farmer.userId);
+          await storage.createNotification({
+            userId: farmer.userId,
+            title: "New Order Received!",
+            message: `${validation.data.customerName} ordered ${item.name} (×${item.quantity}). Total: R${order.total}`,
+            type: "order",
+            orderId: order.id,
+            read: false,
+          });
+        }
+      } catch (notifError) {
+        console.error("Notification error:", notifError);
+      }
+
       res.status(201).json(order);
     } catch (error) {
       res.status(500).json({ message: "Failed to create order" });
+    }
+  });
+
+// Get notifications for logged in user
+  app.get("/api/notifications", async (req, res) => {
+    try {
+      if (!req.session?.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      const notifications = await storage.getNotificationsByUser(req.session.userId);
+      res.json(notifications);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get notifications" });
+    }
+  });
+
+  // Mark notification as read
+  app.patch("/api/notifications/:id/read", async (req, res) => {
+    try {
+      await storage.markNotificationRead(req.params.id);
+      res.json({ message: "Notification marked as read" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to mark notification as read" });
     }
   });
 

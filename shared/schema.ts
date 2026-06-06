@@ -254,6 +254,22 @@ export const insertDeliverySchema = createInsertSchema(deliveries).omit({
   status: true,
 });
 
+// Notifications table
+export const notifications = pgTable("notifications", {
+  id: varchar("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  type: text("type").notNull().default("order"), // 'order', 'approval', 'system'
+  read: boolean("read").default(false),
+  orderId: varchar("order_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertNotificationSchema = createInsertSchema(notifications).omit({ id: true, createdAt: true });
+export type KotuloNotification = typeof notifications.$inferSelect;
+export type InsertKotuloNotification = z.infer<typeof insertNotificationSchema>;
+
 // Type exports
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;

@@ -196,6 +196,24 @@ export default function FarmerDashboard() {
     enabled: !!farmerProfile,
   });
 
+  // Get notifications
+  const { data: notifications = [] } = useQuery<any[]>({
+    queryKey: ["/api/notifications"],
+    enabled: isAuthenticated,
+    refetchInterval: 30000, // refresh every 30 seconds
+  });
+
+  const unreadNotifications = notifications.filter(n => !n.read);
+
+  const markReadMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest("PATCH", `/api/notifications/${id}/read`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
+    },
+  });
+
   if (isPending) {
     return (
       <div className="min-h-screen bg-background">
@@ -276,6 +294,43 @@ export default function FarmerDashboard() {
             </Badge>
           </div>
         </div>
+
+        {/* Notifications */}
+        {unreadNotifications.length > 0 && (
+          <Card className="border-l-4 border-l-primary mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <span className="bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs font-bold">
+                  {unreadNotifications.length}
+                </span>
+                New Orders
+              </CardTitle>
+              <CardDescription>Customers have ordered your products</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {unreadNotifications.map((n: any) => (
+                  <div key={n.id} className="flex items-center justify-between p-3 bg-primary/5 rounded-lg border border-primary/20">
+                    <div>
+                      <p className="font-semibold text-sm">{n.title}</p>
+                      <p className="text-sm text-muted-foreground">{n.message}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {new Date(n.createdAt).toLocaleDateString("en-ZA")} {new Date(n.createdAt).toLocaleTimeString("en-ZA")}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => markReadMutation.mutate(n.id)}
+                    >
+                      Mark Read
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">

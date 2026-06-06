@@ -1,4 +1,4 @@
-import type { Farmer, InsertFarmer, Product, InsertProduct, Order, InsertOrder, User, InsertUser, ServiceArea, Hub } from "@shared/schema";
+import type { Farmer, InsertFarmer, Product, InsertProduct, Order, InsertOrder, User, InsertUser, ServiceArea, Hub, KotuloNotification, InsertKotuloNotification } from "@shared/schema";
 
 export interface IStorage {
   // Users
@@ -36,6 +36,11 @@ export interface IStorage {
   getOrder(id: string): Promise<Order | undefined>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrder(id: string, updates: Partial<Order>): Promise<Order | undefined>;
+
+// Notifications
+  createNotification(notification: InsertKotuloNotification): Promise<KotuloNotification>;
+  getNotificationsByUser(userId: string): Promise<KotuloNotification[]>;
+  markNotificationRead(id: string): Promise<void>;
 
   // Platform Config
   getPlatformConfig(): Promise<Record<string, any>>;

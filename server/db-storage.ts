@@ -3,7 +3,7 @@ import { drizzle } from 'drizzle-orm/neon-http';
 import * as schema from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
 import type { IStorage } from './storage';
-import type { User, InsertUser, Farmer, InsertFarmer, Product, InsertProduct, Order, InsertOrder, ServiceArea, Hub } from '@shared/schema';
+import type { User, InsertUser, Farmer, InsertFarmer, Product, InsertProduct, Order, InsertOrder, ServiceArea, Hub, KotuloNotification, InsertKotuloNotification } from '@shared/schema';
 
 
 const sql = neon(process.env.DATABASE_URL!);
@@ -100,6 +100,18 @@ export class DbStorage implements IStorage {
   async updateOrder(id: string, updates: Partial<Order>): Promise<Order | undefined> {
     const result = await db.update(schema.orders).set(updates).where(eq(schema.orders.id, id)).returning();
     return result[0];
+  }
+  async createNotification(notification: InsertKotuloNotification): Promise<KotuloNotification> {
+    const result = await db.insert(schema.notifications).values(notification).returning();
+    return result[0];
+  }
+  async getNotificationsByUser(userId: string): Promise<KotuloNotification[]> {
+    return db.select().from(schema.notifications)
+      .where(eq(schema.notifications.userId, userId))
+      .orderBy(schema.notifications.createdAt);
+  }
+  async markNotificationRead(id: string): Promise<void> {
+    await db.update(schema.notifications).set({ read: true }).where(eq(schema.notifications.id, id));
   }
   async createOrder(order: InsertOrder): Promise<Order> {
     const result = await db.insert(schema.orders).values(order).returning();
