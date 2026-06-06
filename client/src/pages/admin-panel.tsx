@@ -348,6 +348,21 @@ export default function AdminPanel() {
     queryKey: ["/api/orders"],
   });
 
+  // Update order status
+  const updateOrderStatusMutation = useMutation({
+    mutationFn: async ({ orderId, status }: { orderId: string; status: string }) => {
+      const res = await apiRequest("PATCH", `/api/orders/${orderId}/status`, { status });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      toast({ title: "Order Updated", description: "Order status has been updated." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update order status.", variant: "destructive" });
+    },
+  });
+
   // Toggle user active status (suspend/activate)
   const toggleUserStatusMutation = useMutation({
     mutationFn: async (userId: string) => {
@@ -3629,6 +3644,22 @@ export default function AdminPanel() {
                               }>
                                 {order.status}
                               </Badge>
+                              <Select
+                                value={order.status}
+                                onValueChange={(status) => updateOrderStatusMutation.mutate({ orderId: order.id, status })}
+                              >
+                                <SelectTrigger className="w-40 h-7 text-xs mt-1">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="pending">Pending</SelectItem>
+                                  <SelectItem value="confirmed">Confirmed</SelectItem>
+                                  <SelectItem value="preparing">Preparing</SelectItem>
+                                  <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
+                                  <SelectItem value="delivered">Delivered</SelectItem>
+                                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                                </SelectContent>
+                              </Select>
                             </div>
                           </div>
                           <div className="border-t pt-3">

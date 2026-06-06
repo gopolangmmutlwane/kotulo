@@ -97,6 +97,10 @@ export class DbStorage implements IStorage {
     const result = await db.select().from(schema.orders).where(eq(schema.orders.id, id));
     return result[0];
   }
+  async updateOrder(id: string, updates: Partial<Order>): Promise<Order | undefined> {
+    const result = await db.update(schema.orders).set(updates).where(eq(schema.orders.id, id)).returning();
+    return result[0];
+  }
   async createOrder(order: InsertOrder): Promise<Order> {
     const result = await db.insert(schema.orders).values(order).returning();
     return result[0];

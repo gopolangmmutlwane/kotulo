@@ -1,0 +1,34 @@
+Test 1 — Farmer:
+
+Name: Test Farmer
+Email: testfarmer@kotulo.co.za
+Phone: +27 71 000 0001
+Account Type: Farmer
+Business Name: Test Farm                 
+Password: FamerPass@123
+
+Business Registration Number: TESTFARM/2024/001
+Business Address: 123 Test Farm Road, Pretoria, Gauteng, 0001
+Business Description: We are a test organic farm specializing in fresh vegetables and fruits grown using sustainable farming methods in Gauteng province.
+
+
+
+
+Test 2 — Vendor:
+
+Name: Test Vendor
+Email: testvendor@kotulo.co.za
+Phone: +27 71 000 0002
+Account Type: Vendor
+Business Name: Test Vendor
+Password: VendorPass@123
+
+
+Test 1 — B2B:
+
+Name: Test B2B
+Email: testB2B@kotulo.co.za
+Phone: +27 71 000 0003
+Account Type: B2B
+Business Name: Test B2B
+Password: B2BPass@123

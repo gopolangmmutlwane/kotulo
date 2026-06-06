@@ -35,6 +35,7 @@ export interface IStorage {
   getOrders(): Promise<Order[]>;
   getOrder(id: string): Promise<Order | undefined>;
   createOrder(order: InsertOrder): Promise<Order>;
+  updateOrder(id: string, updates: Partial<Order>): Promise<Order | undefined>;
 
   // Platform Config
   getPlatformConfig(): Promise<Record<string, any>>;
