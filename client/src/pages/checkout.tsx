@@ -16,6 +16,7 @@ import { useCart, CartProvider } from "@/hooks/use-cart";
 import { formatPrice } from "@/lib/currency";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { InsertOrder } from "@shared/schema";
 
 const checkoutSchema = z.object({
@@ -31,6 +32,7 @@ function CheckoutContent() {
   const [orderCompleted, setOrderCompleted] = useState(false);
   const [orderId, setOrderId] = useState<string>("");
   const { items, totalPrice, clearCart } = useCart();
+  const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -103,6 +105,28 @@ function CheckoutContent() {
               <p className="text-sm text-muted-foreground mb-6">
                 You will receive an email confirmation shortly.
               </p>
+              {!isAuthenticated && (
+                <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-4 text-left">
+                  <p className="font-semibold text-sm mb-1">Want to track your order?</p>
+                  <p className="text-xs text-muted-foreground mb-3">Create a free account to view your order history and get updates.</p>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => window.location.href = "/register"}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                    >
+                      Create Account
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => window.location.href = "/login"}
+                    >
+                      Sign In
+                    </Button>
+                  </div>
+                </div>
+              )}
               <Button
                 onClick={() => window.location.href = "/"}
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
