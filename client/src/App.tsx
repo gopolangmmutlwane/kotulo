@@ -26,6 +26,7 @@ import Signup from "@/pages/signup";
 import ForgotPassword from "@/pages/forgot-password";
 import ResetPassword from "@/pages/reset-password";
 import AddProduct from "@/pages/add-product";
+import FarmerAnalytics from "@/pages/farmer-analytics";
 
 function Router() {
   const [location] = useLocation();
@@ -47,6 +48,8 @@ function Router() {
       <Route path="/b2b" component={B2BOrdering} />
       <Route path="/vendor" component={VendorPortal} />
       <Route path="/add-product" component={AddProduct} />
+      <Route path="/add-product" component={AddProduct} />
+      <Route path="/farmer-analytics" component={FarmerAnalytics} />
       <Route path="/operations" component={Operations} />
       <Route path="/admin" component={AdminPanel} />
       <Route path="/login" component={Login} />

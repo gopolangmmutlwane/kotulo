@@ -393,7 +393,7 @@ export default function FarmerDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation("/farmer-dashboard")}>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation("/farmer-analytics")}>
             <CardContent className="p-6 text-center">
               <TrendingUp className="w-8 h-8 text-primary mx-auto mb-2" />
               <h3 className="font-semibold">View Analytics</h3>
