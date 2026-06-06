@@ -32,3 +32,13 @@ Phone: +27 71 000 0003
 Account Type: B2B
 Business Name: Test B2B
 Password: B2BPass@123
+
+
+Test 1 — Customer:
+
+Name: Test Customer
+Email: testCustomer@kotulo.co.za
+Phone: +27 71 000 0005
+Account Type: Customer
+Business Name: Test Customer
+Password: CustomerPass@123

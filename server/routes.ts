@@ -83,7 +83,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       platformVersion: "2.0.1",
       maintenanceMode: false,
       allowRegistration: true,
-      requireEmailVerification: true,
+      requireEmailVerification: false,
       defaultUserRole: "household"
     },
     payment: {
