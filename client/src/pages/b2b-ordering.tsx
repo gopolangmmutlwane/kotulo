@@ -30,6 +30,7 @@ export default function B2BOrdering() {
   const { user } = useAuth();
   const isVendor = user?.role === "vendor";
   const isB2B = user?.role === "b2b";
+  const isFarmer = user?.role === "farmer";
   const isPending = user?.approvalStatus === "pending";
 
   // Get all products (for vendors to stock from farmers)
@@ -69,7 +70,7 @@ export default function B2BOrdering() {
     );
   }
 
-  if (!isVendor && !isB2B) {
+  if (!isVendor && !isB2B && !isFarmer) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -132,7 +133,7 @@ export default function B2BOrdering() {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">
-            {isVendor ? "Stock from Farmers" : "B2B Ordering Portal"}
+            {isVendor || isFarmer? "Stock from Farmers" : "B2B Ordering Portal"}
           </h1>
           <p className="text-muted-foreground">
             {isVendor 
