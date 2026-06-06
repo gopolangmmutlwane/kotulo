@@ -1466,6 +1466,7 @@ export default function AdminPanel() {
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
               <TabsTrigger value="platform">Platform Config</TabsTrigger>
               <TabsTrigger value="monitoring">System Health</TabsTrigger>
+              <TabsTrigger value="orders">Orders</TabsTrigger>
             </TabsList>
 
             {/* Overview */}
@@ -3594,6 +3595,57 @@ export default function AdminPanel() {
                       )}
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="orders" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>All Orders</CardTitle>
+                  <CardDescription>View and manage all customer orders</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {allOrders.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">No orders yet</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {allOrders.map((order: any) => (
+                        <div key={order.id} className="border rounded-lg p-4 hover:bg-muted/30 transition-colors">
+                          <div className="flex items-center justify-between mb-3">
+                            <div>
+                              <p className="font-semibold">{order.customer_name}</p>
+                              <p className="text-sm text-muted-foreground">{order.customer_email} • {order.customer_phone}</p>
+                              <p className="text-sm text-muted-foreground">{order.delivery_address}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-xl font-bold text-primary">R{parseFloat(order.total || "0").toFixed(2)}</p>
+                              <p className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleDateString("en-ZA")}</p>
+                              <Badge variant={
+                                order.status === "delivered" ? "default" :
+                                order.status === "cancelled" ? "destructive" : "secondary"
+                              }>
+                                {order.status}
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="border-t pt-3">
+                            <p className="text-sm font-medium mb-2">Items Ordered:</p>
+                            <div className="space-y-1">
+                              {(order.items || []).map((item: any, index: number) => (
+                                <div key={index} className="flex justify-between text-sm">
+                                  <span>{item.name} × {item.quantity} {item.unit}</span>
+                                  <span className="font-medium">R{(parseFloat(item.price) * item.quantity).toFixed(2)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
