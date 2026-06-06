@@ -295,7 +295,7 @@ function AddProductContent() {
                     <Label htmlFor="image">Product Image</Label>
                     <div className="flex items-center gap-6">
                       <div className="flex-1">
-                        <div className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-6 text-center">
+                        <label htmlFor="image" className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-6 text-center cursor-pointer block">
                           {imagePreview ? (
                             <div className="space-y-4">
                               <img 
@@ -325,7 +325,7 @@ function AddProductContent() {
                               </p>
                             </div>
                           )}
-                        </div>
+                        </label>
                         <Input
                           id="image"
                           name="image"
