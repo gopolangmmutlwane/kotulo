@@ -94,21 +94,31 @@ export default function CustomerDashboard() {
             ) : (
               <div className="space-y-4">
                 {recentOrders.map((order) => (
-                  <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <p className="font-semibold">Order #{order.id.slice(0, 8)}</p>
-                      <p className="text-sm text-muted-foreground">{order.customerEmail}</p>
-                      <p className="text-xs text-muted-foreground">{new Date(order.createdAt as any).toLocaleDateString()}</p>
+                  <div key={order.id} className="border rounded-lg p-4 hover:bg-muted/30 transition-colors">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <p className="font-semibold">Order #{order.id.slice(0, 8)}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(order.createdAt as any).toLocaleDateString()}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-primary">R {parseFloat(order.total as any).toFixed(2)}</p>
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          order.status === "delivered" ? "bg-primary/10 text-primary" :
+                          order.status === "cancelled" ? "bg-destructive/10 text-destructive" :
+                          order.status === "out_for_delivery" ? "bg-accent/10 text-accent" :
+                          "bg-secondary/50 text-secondary-foreground"
+                        }`}>
+                          {order.status?.replace(/_/g, " ")}
+                        </span>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold">R {parseFloat(order.total as any).toFixed(2)}</p>
-                      <span className={`text-xs px-2 py-1 rounded ${
-                        order.status === "delivered" ? "bg-primary/10 text-primary" :
-                        order.status === "pending" ? "bg-secondary/50 text-secondary-foreground" :
-                        "bg-accent/10 text-accent"
-                      }`}>
-                        {order.status}
-                      </span>
+                    <div className="border-t pt-2 space-y-1">
+                      {((order as any).items || []).map((item: any, index: number) => (
+                        <div key={index} className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">{item.name} × {item.quantity} {item.unit}</span>
+                          <span className="font-medium">R {(parseFloat(item.price) * item.quantity).toFixed(2)}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 ))}
