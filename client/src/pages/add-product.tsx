@@ -63,15 +63,27 @@ function AddProductContent() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      setFormData(prev => ({ ...prev, image: reader.result as string }));
+    if (!file) return;
+    
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('image', file);
+      
+      const response = await fetch('/api/upload/image', {
+        method: 'POST',
+        body: formDataUpload,
+        credentials: 'include',
+      });
+      
+      const data = await response.json();
+      const imageUrl = data.filePath;
+      
+      setImagePreview(imageUrl);
+      setFormData(prev => ({ ...prev, image: imageUrl }));
+    } catch (error) {
+      console.error('Image upload error:', error);
     }
   };
 
