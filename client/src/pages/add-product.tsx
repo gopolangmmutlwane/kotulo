@@ -111,8 +111,13 @@ function AddProductContent() {
       const res = await apiRequest("POST", "/api/products", productData);
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      const farmers = await fetch("/api/farmers").then(r => r.json());
+      const farmerProfile = farmers.find((f: any) => f.userId === user?.id);
+      if (farmerProfile) {
+        queryClient.invalidateQueries({ queryKey: [`/api/products?farmerId=${farmerProfile.id}`] });
+      }
       toast({ title: "Product Added", description: "Your product has been listed successfully" });
       setFormData({ name: "", description: "", category: "vegetables", price: "", unit: "kg", minOrderQty: 1, stockQuantity: 0, image: "" });
       setImagePreview(null);
