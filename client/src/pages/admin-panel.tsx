@@ -3616,13 +3616,13 @@ export default function AdminPanel() {
                         <div key={order.id} className="border rounded-lg p-4 hover:bg-muted/30 transition-colors">
                           <div className="flex items-center justify-between mb-3">
                             <div>
-                              <p className="font-semibold">{order.customer_name}</p>
-                              <p className="text-sm text-muted-foreground">{order.customer_email} • {order.customer_phone}</p>
-                              <p className="text-sm text-muted-foreground">{order.delivery_address}</p>
-                            </div>
+                                <p className="font-semibold">{order.customerName}</p>
+                                <p className="text-sm text-muted-foreground">{order.customerEmail} • {order.customerPhone}</p>
+                                <p className="text-sm text-muted-foreground">{order.deliveryAddress}</p>                            
+			    </div>
                             <div className="text-right">
                               <p className="text-xl font-bold text-primary">R{parseFloat(order.total || "0").toFixed(2)}</p>
-                              <p className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleDateString("en-ZA")}</p>
+                              <p className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleDateString("en-ZA")}</p>
                               <Badge variant={
                                 order.status === "delivered" ? "default" :
                                 order.status === "cancelled" ? "destructive" : "secondary"
