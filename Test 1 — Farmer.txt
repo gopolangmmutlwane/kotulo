@@ -42,3 +42,16 @@ Phone: +27 71 000 0005
 Account Type: Customer
 Business Name: Test Customer
 Password: CustomerPass@123
+
+
+Sandbox credentials (these are public test credentials from PayFast):
+
+Merchant ID: 10000100
+Merchant Key: 46f0cd694581a
+Passphrase: jt7NOE43FZPn
+
+Use these test card details on the PayFast page:
+
+Card number: 4111 1111 1111 1111
+Expiry: any future date
+CVV: any 3 digits

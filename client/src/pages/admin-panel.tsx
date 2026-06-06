@@ -3638,6 +3638,18 @@ export default function AdminPanel() {
                             <div className="text-right">
                               <p className="text-xl font-bold text-primary">R{parseFloat(order.total || "0").toFixed(2)}</p>
                               <p className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleDateString("en-ZA")}</p>
+                              <p className="text-xs font-medium mt-1">
+                                {order.paymentMethod === "cod" ? "💵 Cash on Delivery" : 
+                                 order.paymentMethod === "payfast" ? "💳 PayFast" : 
+                                 "⏳ Payment Pending"}
+                              </p>
+                              <p className="text-xs mt-0.5">
+                                {order.paymentStatus === "paid" ? (
+                                  <span className="text-primary font-medium">✅ Paid</span>
+                                ) : (
+                                  <span className="text-muted-foreground">⏳ Unpaid</span>
+                                )}
+                              </p>
                               <Badge variant={
                                 order.status === "delivered" ? "default" :
                                 order.status === "cancelled" ? "destructive" : "secondary"
