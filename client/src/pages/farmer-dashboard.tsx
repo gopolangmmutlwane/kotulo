@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,21 +6,132 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { Link, useLocation } from "wouter";
-import { 
-  Package, 
+import { useLocation } from "wouter";
+import {
+  Package,
   TrendingUp,
   DollarSign,
   ShoppingCart,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Pencil,
+  Trash2,
+  Save,
+  X,
+  Image as ImageIcon
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Product, Farmer } from "@shared/schema";
 
+const CATEGORIES = [
+  { value: "vegetables", label: "Vegetables" },
+  { value: "meat", label: "Meat" },
+  { value: "dairy", label: "Dairy" },
+  { value: "fruits", label: "Fruits" },
+  { value: "grains", label: "Grains" },
+];
+
+const UNITS = [
+  { value: "kg", label: "Kilograms (kg)" },
+  { value: "g", label: "Grams (g)" },
+  { value: "units", label: "Individual Units" },
+  { value: "liters", label: "Liters (L)" },
+  { value: "dozens", label: "Dozens" },
+];
+
 export default function FarmerDashboard() {
-  const { user, isAuthenticated } = useAuth();
+    const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    description: "",
+    category: "vegetables",
+    price: "",
+    unit: "kg",
+    minOrderQty: 1,
+    image: "",
+  });
+  const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  const openEdit = (product: Product) => {
+    setEditingProduct(product);
+    setEditForm({
+      name: product.name,
+      description: product.description || "",
+      category: product.category,
+      price: String(product.retailPrice),
+      unit: product.unit || "kg",
+      minOrderQty: product.minOrderQty || 1,
+      image: product.image || "",
+    });
+    setEditImagePreview(product.image || null);
+  };
+
+  const handleEditImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const fd = new FormData();
+      fd.append("image", file);
+      const res = await fetch("/api/upload/image", { method: "POST", body: fd, credentials: "include" });
+      const data = await res.json();
+      setEditImagePreview(data.filePath);
+      setEditForm(prev => ({ ...prev, image: data.filePath }));
+    } catch {
+      toast({ title: "Upload failed", description: "Could not upload image", variant: "destructive" });
+    }
+  };
+
+  const updateProductMutation = useMutation({
+    mutationFn: async () => {
+      if (!editingProduct) return;
+      const payload = {
+        name: editForm.name,
+        description: editForm.description,
+        category: editForm.category,
+        retailPrice: editForm.price,
+        wholesalePrice: (parseFloat(editForm.price) * 0.85).toFixed(2),
+        unit: editForm.unit,
+        minOrderQty: Number(editForm.minOrderQty),
+        image: editForm.image || null,
+      };
+      const res = await apiRequest("PATCH", `/api/products/${editingProduct.id}`, payload);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      toast({ title: "Product updated", description: "Your changes have been saved." });
+      setEditingProduct(null);
+    },
+    onError: () => {
+      toast({ title: "Update failed", description: "Could not save changes.", variant: "destructive" });
+    },
+  });
+
+  const deleteProductMutation = useMutation({
+    mutationFn: async (productId: string) => {
+      await apiRequest("DELETE", `/api/products/${productId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      toast({ title: "Product deleted", description: "The product has been removed." });
+      setDeleteConfirmId(null);
+    },
+    onError: () => {
+      toast({ title: "Delete failed", description: "Could not delete product.", variant: "destructive" });
+    },
+  });
 
   // Authentication and role guard
   useEffect(() => {
@@ -260,22 +371,26 @@ export default function FarmerDashboard() {
             ) : (
               <div className="space-y-4">
                 {products.map((product) => (
-                  <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/30 transition-colors">
                     <div className="flex items-center space-x-4">
-                      {product.image && (
-                        <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded" />
+                      {product.image ? (
+                        <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded-lg border" />
+                      ) : (
+                        <div className="w-16 h-16 rounded-lg border bg-muted flex items-center justify-center">
+                          <Package className="w-6 h-6 text-muted-foreground" />
+                        </div>
                       )}
                       <div>
                         <p className="font-semibold">{product.name}</p>
-                        <p className="text-sm text-muted-foreground">{product.category}</p>
-                        <p className="text-xs text-muted-foreground">R {parseFloat(product.retailPrice as any).toFixed(2)}</p>
+                        <p className="text-sm text-muted-foreground capitalize">{product.category}</p>
+                        <p className="text-sm font-medium text-primary">R {parseFloat(product.retailPrice as any).toFixed(2)} / {product.unit}</p>
                         {(product as any).status === "rejected" && (
-                          <p className="text-xs text-destructive">Rejected — please delete and resubmit</p>
+                          <p className="text-xs text-destructive mt-1">Rejected — edit and resubmit for review</p>
                         )}
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      {product.featured && <Badge>Featured</Badge>}
+                      {product.featured && <Badge variant="outline">Featured</Badge>}
                       <Badge variant={
                         (product as any).status === "approved" ? "default" : 
                         (product as any).status === "rejected" ? "destructive" : "secondary"
@@ -283,20 +398,24 @@ export default function FarmerDashboard() {
                         {(product as any).status === "approved" ? "Active" : 
                           (product as any).status === "rejected" ? "Rejected" : "Pending Approval"}
                       </Badge>
-                      {(product as any).status === "rejected" && (
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={async () => {
-                            if (confirm("Delete this rejected product?")) {
-                              await apiRequest("DELETE", `/api/products/${product.id}`);
-                              window.location.reload();
-                            }
-                          }}
-                        >
-                          Delete
-                        </Button>
-                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openEdit(product)}
+                        className="gap-1"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                        Edit
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => setDeleteConfirmId(product.id)}
+                        className="gap-1"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Delete
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -306,7 +425,157 @@ export default function FarmerDashboard() {
         </Card>
       </div>
       <Footer />
+
+      {/* Edit Product Dialog */}
+      <Dialog open={!!editingProduct} onOpenChange={(open) => !open && setEditingProduct(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Product</DialogTitle>
+            <DialogDescription>
+              Update your product details. Changes will be saved and may require re-approval.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-5 py-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <Label htmlFor="edit-name">Product Name *</Label>
+                <Input
+                  id="edit-name"
+                  value={editForm.name}
+                  onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))}
+                  placeholder="e.g., Organic Tomatoes"
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="edit-description">Description</Label>
+                <Textarea
+                  id="edit-description"
+                  value={editForm.description}
+                  onChange={e => setEditForm(p => ({ ...p, description: e.target.value }))}
+                  placeholder="Describe your product..."
+                  rows={3}
+                />
+              </div>
+              <div>
+                <Label>Category *</Label>
+                <Select value={editForm.category} onValueChange={v => setEditForm(p => ({ ...p, category: v }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Unit Type *</Label>
+                <Select value={editForm.unit} onValueChange={v => setEditForm(p => ({ ...p, unit: v }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {UNITS.map(u => <SelectItem key={u.value} value={u.value}>{u.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit-price">Price per Unit (R) *</Label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Input
+                    id="edit-price"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={editForm.price}
+                    onChange={e => setEditForm(p => ({ ...p, price: e.target.value }))}
+                    className="pl-10"
+                    placeholder="25.00"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="edit-moq">Minimum Order Qty *</Label>
+                <Input
+                  id="edit-moq"
+                  type="number"
+                  min="1"
+                  value={editForm.minOrderQty}
+                  onChange={e => setEditForm(p => ({ ...p, minOrderQty: Number(e.target.value) }))}
+                />
+              </div>
+            </div>
+            <div>
+              <Label>Product Image</Label>
+              <div className="mt-1.5">
+                <label htmlFor="edit-image" className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center cursor-pointer block hover:border-primary/50 transition-colors">
+                  {editImagePreview ? (
+                    <div className="flex items-center gap-4">
+                      <img src={editImagePreview} alt="preview" className="w-20 h-20 object-cover rounded-lg border" />
+                      <div className="text-left">
+                        <p className="text-sm font-medium">Image selected</p>
+                        <p className="text-xs text-muted-foreground">Click to replace</p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="ml-auto"
+                        onClick={e => { e.preventDefault(); setEditImagePreview(null); setEditForm(p => ({ ...p, image: "" })); }}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="py-4 space-y-2">
+                      <ImageIcon className="w-8 h-8 text-muted-foreground mx-auto" />
+                      <p className="text-sm text-muted-foreground">Click to upload product image</p>
+                      <p className="text-xs text-muted-foreground">PNG, JPG, WEBP — max 5MB</p>
+                    </div>
+                  )}
+                </label>
+                <Input id="edit-image" type="file" accept="image/*" onChange={handleEditImageChange} className="hidden" />
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setEditingProduct(null)}>Cancel</Button>
+            <Button
+              onClick={() => updateProductMutation.mutate()}
+              disabled={updateProductMutation.isPending || !editForm.name || !editForm.price}
+              className="bg-primary hover:bg-primary/90 gap-2"
+            >
+              {updateProductMutation.isPending ? (
+                <><div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent animate-spin rounded-full" /> Saving...</>
+              ) : (
+                <><Save className="w-4 h-4" /> Save Changes</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete Product</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this product? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>Cancel</Button>
+            <Button
+              variant="destructive"
+              disabled={deleteProductMutation.isPending}
+              onClick={() => deleteConfirmId && deleteProductMutation.mutate(deleteConfirmId)}
+            >
+              {deleteProductMutation.isPending ? "Deleting..." : "Delete Product"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-
