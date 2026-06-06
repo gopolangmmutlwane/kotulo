@@ -124,19 +124,58 @@ export function Header() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
            {isAuthenticated && user?.role === "farmer" && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative"
-                onClick={() => setLocation("/farmer-dashboard")}
-              >
-                <Bell className="h-6 w-6" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-destructive text-primary-foreground text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative">
+                    <Bell className="h-6 w-6" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-destructive text-primary-foreground text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80">
+                  <DropdownMenuLabel className="flex items-center justify-between">
+                    <span>Notifications</span>
+                    {unreadCount > 0 && (
+                      <span className="text-xs text-muted-foreground">{unreadCount} unread</span>
+                    )}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {notifications.length === 0 ? (
+                    <div className="p-4 text-center text-sm text-muted-foreground">
+                      No notifications yet
+                    </div>
+                  ) : (
+                    notifications.slice(0, 5).map((n: any) => (
+                      <DropdownMenuItem
+                        key={n.id}
+                        className={`flex flex-col items-start p-3 cursor-pointer ${!n.read ? "bg-primary/5" : ""}`}
+                        onClick={async () => {
+                          if (!n.read) {
+                            await fetch(`/api/notifications/${n.id}/read`, { method: "PATCH", credentials: "include" });
+                          }
+                          setLocation("/farmer-dashboard");
+                        }}
+                      >
+                        <p className="font-semibold text-sm">{n.title}</p>
+                        <p className="text-xs text-muted-foreground">{n.message}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(n.createdAt).toLocaleDateString("en-ZA")} {new Date(n.createdAt).toLocaleTimeString("en-ZA")}
+                        </p>
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="text-center text-sm text-primary cursor-pointer justify-center"
+                    onClick={() => setLocation("/farmer-dashboard")}
+                  >
+                    View All on Dashboard
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
            <button
             onClick={(e) => {
