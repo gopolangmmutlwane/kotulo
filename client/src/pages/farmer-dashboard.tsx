@@ -111,6 +111,9 @@ export default function FarmerDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      if (farmerProfile) {
+        queryClient.invalidateQueries({ queryKey: [`/api/products?farmerId=${farmerProfile.id}`] });
+      }
       toast({ title: "Product updated", description: "Your changes have been saved." });
       setEditingProduct(null);
     },
@@ -125,6 +128,9 @@ export default function FarmerDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      if (farmerProfile) {
+        queryClient.invalidateQueries({ queryKey: [`/api/products?farmerId=${farmerProfile.id}`] });
+      }
       toast({ title: "Product deleted", description: "The product has been removed." });
       setDeleteConfirmId(null);
     },
