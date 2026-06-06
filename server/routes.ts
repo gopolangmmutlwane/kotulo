@@ -919,6 +919,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/orders", async (req, res) => {
     try {
       const orders = await storage.getOrders();
+      // If customer email filter provided, return only their orders
+      const { email } = req.query;
+      if (email) {
+        const filtered = orders.filter(o => o.customerEmail === email);
+        return res.json(filtered);
+      }
       res.json(orders);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch orders" });

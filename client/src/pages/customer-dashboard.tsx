@@ -20,7 +20,12 @@ export default function CustomerDashboard() {
   const [, setLocation] = useLocation();
 
   const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
-    queryKey: ["/api/orders"],
+    queryKey: ["/api/orders", user?.email],
+    queryFn: async () => {
+      const res = await fetch(`/api/orders?email=${encodeURIComponent(user?.email || "")}`);
+      return res.json();
+    },
+    enabled: !!user?.email,
   });
 
   const recentOrders = orders.slice(0, 5);
