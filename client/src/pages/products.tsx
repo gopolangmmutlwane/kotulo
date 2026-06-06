@@ -35,8 +35,11 @@ function ProductsContent() {
   });
 
   const filteredProducts = products
-    .filter(product => 
-      searchQuery === "" || 
+    .filter(product =>
+      (product as any).listingType === "household" || (product as any).listingType === "both" || !(product as any).listingType
+    )
+    .filter(product =>
+      searchQuery === "" ||
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.description?.toLowerCase().includes(searchQuery.toLowerCase())
     )

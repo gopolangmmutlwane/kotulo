@@ -48,8 +48,10 @@ export default function B2BOrdering() {
     queryKey: ["/api/orders"],
   });
 
-  // Filter products by farmer for vendor view
-  const farmerProducts = products;
+  // Filter products by farmer for vendor view - only show bulk or both
+  const farmerProducts = products.filter(p => 
+    (p as any).listingType === "bulk" || (p as any).listingType === "both" || !(p as any).listingType
+  );
 
   const totalSpend = orders.reduce((sum, o) => sum + parseFloat((o.total as any) || "0"), 0);
 

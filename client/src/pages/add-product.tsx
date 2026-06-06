@@ -36,7 +36,8 @@ function AddProductContent() {
     unit: "kg",
     minOrderQty: 1,
     stockQuantity: 0,
-    image: ""
+    image: "",
+    listingType: "both"
   });
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -103,6 +104,7 @@ function AddProductContent() {
         unit: formData.unit,
         minOrderQty: Number(formData.minOrderQty),
         image: formData.image || null,
+        listingType: formData.listingType,
         isActive: true,
         featured: false,
         organic: false,
@@ -119,7 +121,7 @@ function AddProductContent() {
         queryClient.invalidateQueries({ queryKey: [`/api/products?farmerId=${farmerProfile.id}`] });
       }
       toast({ title: "Product Added", description: "Your product has been listed successfully" });
-      setFormData({ name: "", description: "", category: "vegetables", price: "", unit: "kg", minOrderQty: 1, stockQuantity: 0, image: "" });
+      setFormData({ name: "", description: "", category: "vegetables", price: "", unit: "kg", minOrderQty: 1, stockQuantity: 0, image: "", listingType: "both" });
       setImagePreview(null);
       setLocation("/farmer-dashboard");
     },
@@ -222,6 +224,21 @@ function AddProductContent() {
                         </Select>
                       </div>
                     </div>
+
+                    {/* Listing Type */}
+                      <div>
+                        <Label htmlFor="listingType">Available For *</Label>
+                        <Select value={formData.listingType} onValueChange={(value) => setFormData(prev => ({ ...prev, listingType: value }))}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select listing type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="both">Everyone (Household & Bulk)</SelectItem>
+                            <SelectItem value="household">Household Buyers Only</SelectItem>
+                            <SelectItem value="bulk">Bulk Buyers Only</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
                     {/* Right Column */}
                     <div className="space-y-6">

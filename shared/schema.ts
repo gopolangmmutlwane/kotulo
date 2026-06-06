@@ -104,6 +104,7 @@ export const products = pgTable("products", {
   image: text("image"),
   featured: boolean("featured").default(false),
   organic: boolean("organic").default(false),
+  listingType: text("listing_type").notNull().default("both"), // 'household', 'bulk', 'both'
   substitutes: text("substitutes").array(), // Product IDs that can substitute
   isActive: boolean("is_active").default(true),
   status: text("status").notNull().default("approved"), // 'pending', 'approved', 'rejected'

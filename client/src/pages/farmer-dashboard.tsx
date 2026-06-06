@@ -60,6 +60,7 @@ export default function FarmerDashboard() {
     unit: "kg",
     minOrderQty: 1,
     image: "",
+    listingType: "both",
   });
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -74,6 +75,7 @@ export default function FarmerDashboard() {
       unit: product.unit || "kg",
       minOrderQty: product.minOrderQty || 1,
       image: product.image || "",
+      listingType: (product as any).listingType || "both",
     });
     setEditImagePreview(product.image || null);
   };
@@ -105,6 +107,7 @@ export default function FarmerDashboard() {
         unit: editForm.unit,
         minOrderQty: Number(editForm.minOrderQty),
         image: editForm.image || null,
+        listingType: editForm.listingType,
       };
       const res = await apiRequest("PATCH", `/api/products/${editingProduct.id}`, payload);
       return res.json();
@@ -481,6 +484,19 @@ export default function FarmerDashboard() {
                   </SelectTrigger>
                   <SelectContent>
                     {UNITS.map(u => <SelectItem key={u.value} value={u.value}>{u.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="col-span-2">
+                <Label>Available For *</Label>
+                <Select value={editForm.listingType} onValueChange={v => setEditForm(p => ({ ...p, listingType: v }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="both">Everyone (Household & Bulk)</SelectItem>
+                    <SelectItem value="household">Household Buyers Only</SelectItem>
+                    <SelectItem value="bulk">Bulk Buyers Only</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
