@@ -31,6 +31,7 @@ type CheckoutFormData = z.infer<typeof checkoutSchema>;
 function CheckoutContent() {
   const [orderCompleted, setOrderCompleted] = useState(false);
   const [orderId, setOrderId] = useState<string>("");
+  const [paymentMethod, setPaymentMethod] = useState("cod");
   const { items, totalPrice, clearCart } = useCart();
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
@@ -85,6 +86,7 @@ function CheckoutContent() {
       deliveryAddress: data.customerAddress,
       subtotal: totalPrice.toString(),
       total: totalPrice.toString(),
+      paymentMethod: paymentMethod,
     };
 
     createOrderMutation.mutate(orderData);
@@ -305,14 +307,32 @@ function CheckoutContent() {
                     </p>
                   </div>
                   
-                  <div className="bg-secondary/30 p-4 rounded-lg">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <CreditCard className="h-5 w-5 text-secondary-foreground" />
-                      <span className="font-medium">Payment on Delivery</span>
+                  <div className="space-y-3">
+                    <p className="font-medium">Payment Method</p>
+                    <div
+                      className={`p-4 rounded-lg border-2 cursor-pointer transition-colors ${paymentMethod === "cod" ? "border-primary bg-primary/5" : "border-muted"}`}
+                      onClick={() => setPaymentMethod("cod")}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-4 h-4 rounded-full border-2 ${paymentMethod === "cod" ? "border-primary bg-primary" : "border-muted-foreground"}`} />
+                        <div>
+                          <p className="font-medium">Cash on Delivery</p>
+                          <p className="text-sm text-muted-foreground">Pay with cash when your order arrives</p>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Pay with cash or card when your order arrives.
-                    </p>
+                    <div
+                      className={`p-4 rounded-lg border-2 cursor-pointer transition-colors ${paymentMethod === "payfast" ? "border-primary bg-primary/5" : "border-muted opacity-60"}`}
+                      onClick={() => setPaymentMethod("payfast")}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-4 h-4 rounded-full border-2 ${paymentMethod === "payfast" ? "border-primary bg-primary" : "border-muted-foreground"}`} />
+                        <div>
+                          <p className="font-medium">Pay Online (PayFast)</p>
+                          <p className="text-sm text-muted-foreground">Credit/Debit card, EFT, SnapScan — Coming Soon</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   
                   <Button
