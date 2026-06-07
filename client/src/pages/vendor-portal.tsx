@@ -377,6 +377,11 @@ export default function VendorPortal() {
                               <p className="text-xs text-muted-foreground">
                                 {order.paymentMethod === "cod" ? "💵 Cash on Delivery" : "💳 PayFast"}
                               </p>
+                              {order.deliveryAddress && (
+                                <p className="text-xs font-medium text-accent mt-1">
+                                  📍 {order.deliveryAddress.match(/\[([^\]]+)\]/)?.[1] || "Area not specified"}
+                                </p>
+                              )}
                             </div>
                             <div className="flex gap-2">
                               <Button

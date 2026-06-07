@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { useCart, CartProvider } from "@/hooks/use-cart";
@@ -25,6 +26,7 @@ const checkoutSchema = z.object({
   customerEmail: z.string().email("Please enter a valid email"),
   customerPhone: z.string().min(10, "Please enter a valid phone number"),
   customerAddress: z.string().min(10, "Please enter a complete address"),
+  deliveryArea: z.string().min(1, "Please select your area"),
 });
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
@@ -46,6 +48,7 @@ function CheckoutContent() {
       customerEmail: "",
       customerPhone: "",
       customerAddress: "",
+      deliveryArea: "",
     },
   });
 
@@ -120,7 +123,7 @@ function CheckoutContent() {
       customerEmail: data.customerEmail,
       customerName: data.customerName,
       customerPhone: data.customerPhone,
-      deliveryAddress: data.customerAddress,
+      deliveryAddress: `[${(data as any).deliveryArea}] ${data.customerAddress}`,
       subtotal: totalPrice.toString(),
       total: totalPrice.toString(),
       paymentMethod: paymentMethod,
@@ -274,18 +277,53 @@ function CheckoutContent() {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <FormField
                     control={form.control}
-                    name="customerName"
+                    name="deliveryArea"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Full Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Your full name" {...field} data-testid="input-customer-name" />
-                        </FormControl>
+                        <FormLabel>Delivery Area *</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select your area" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Soweto">Soweto</SelectItem>
+                            <SelectItem value="Sandton">Sandton</SelectItem>
+                            <SelectItem value="Midrand">Midrand</SelectItem>
+                            <SelectItem value="Johannesburg North">Johannesburg North</SelectItem>
+                            <SelectItem value="Johannesburg South">Johannesburg South</SelectItem>
+                            <SelectItem value="East Rand">East Rand</SelectItem>
+                            <SelectItem value="West Rand">West Rand</SelectItem>
+                            <SelectItem value="Pretoria">Pretoria</SelectItem>
+                            <SelectItem value="Centurion">Centurion</SelectItem>
+                            <SelectItem value="Mafikeng">Mafikeng</SelectItem>
+                            <SelectItem value="Cape Town">Cape Town</SelectItem>
+                            <SelectItem value="Durban">Durban</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
+                  <FormField
+                    control={form.control}
+                    name="customerAddress"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Delivery Address *</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Street number, street name, suburb"
+                            {...field}
+                            data-testid="input-customer-address"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />                  
                   <FormField
                     control={form.control}
                     name="customerEmail"
