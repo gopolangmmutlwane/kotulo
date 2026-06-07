@@ -26,7 +26,7 @@ const checkoutSchema = z.object({
   customerEmail: z.string().email("Please enter a valid email"),
   customerPhone: z.string().min(10, "Please enter a valid phone number"),
   customerAddress: z.string().min(10, "Please enter a complete address"),
-  deliveryArea: z.string().min(1, "Please select your area"),
+  deliveryArea: z.string().optional(),
 });
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
@@ -112,6 +112,7 @@ function CheckoutContent() {
   });
 
   const onSubmit = (data: CheckoutFormData) => {
+    console.log("Form submitted!", data);
     const orderData: InsertOrder = {
       items: items.map(item => ({
         productId: item.id,
