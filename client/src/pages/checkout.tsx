@@ -77,18 +77,18 @@ function CheckoutContent() {
           const { payfastUrl, data } = await res.json();
 
           // Create and submit form to PayFast
-          const form = document.createElement("form");
-          form.method = "POST";
-          form.action = payfastUrl;
+          const payfastForm = document.createElement("form");
+          payfastForm.method = "POST";
+          payfastForm.action = payfastUrl;
           Object.entries(data).forEach(([key, value]) => {
             const input = document.createElement("input");
             input.type = "hidden";
             input.name = key;
             input.value = value as string;
-            form.appendChild(input);
+            payfastForm.appendChild(input);
           });
-          document.body.appendChild(form);
-          form.submit();
+          document.body.appendChild(payfastForm);
+          payfastForm.submit();
         } catch (error) {
           setIsRedirecting(false);
           toast({ title: "Payment Error", description: "Could not initiate payment.", variant: "destructive" });
