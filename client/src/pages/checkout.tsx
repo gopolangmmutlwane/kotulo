@@ -113,6 +113,7 @@ function CheckoutContent() {
 
   const onSubmit = (data: CheckoutFormData) => {
     console.log("Form submitted!", data);
+    console.log("Form errors:", form.formState.errors);
     const orderData: InsertOrder = {
       items: items.map(item => ({
         productId: item.id,
@@ -275,7 +276,7 @@ function CheckoutContent() {
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={form.handleSubmit(onSubmit, (errors) => console.log("Validation errors:", errors))} className="space-y-4">
                   <FormField
                     control={form.control}
                     name="deliveryArea"
