@@ -3,4 +3,6 @@ dist
 .DS_Store
 server/public
 vite.config.ts.*
-*.tar.gz
+*.tar.gz# Keep logo but ignore other images
+client/public/images/*
+!client/public/images/logo1.png
