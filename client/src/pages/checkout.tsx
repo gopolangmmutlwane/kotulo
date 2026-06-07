@@ -309,6 +309,19 @@ function CheckoutContent() {
                       </FormItem>
                     )}
                   />
+		  <FormField
+                    control={form.control}
+                    name="customerName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Your full name" {...field} data-testid="input-customer-name" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name="customerAddress"
@@ -325,7 +338,7 @@ function CheckoutContent() {
                         <FormMessage />
                       </FormItem>
                     )}
-                  />                  
+                  />                 
                   <FormField
                     control={form.control}
                     name="customerEmail"
@@ -354,24 +367,6 @@ function CheckoutContent() {
                     )}
                   />
                   
-                  <FormField
-                    control={form.control}
-                    name="customerAddress"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Delivery Address</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Your complete delivery address" 
-                            {...field} 
-                            data-testid="input-customer-address"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
                   <Separator className="my-6" />
                   
                   <div className="bg-muted p-4 rounded-lg">
