@@ -112,8 +112,6 @@ function CheckoutContent() {
   });
 
   const onSubmit = (data: CheckoutFormData) => {
-    console.log("Form submitted!", data);
-    console.log("Form errors:", form.formState.errors);
     const orderData: InsertOrder = {
       items: items.map(item => ({
         productId: item.id,
