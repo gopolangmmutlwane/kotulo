@@ -8,7 +8,7 @@ export default function About() {
       <div className="container mx-auto px-4 py-16 max-w-3xl">
         <h1 className="text-4xl font-bold mb-6">About Kotulo</h1>
         <p className="text-muted-foreground mb-4">
-          Kotulo is a South African farm-to-table marketplace connecting local farmers directly with households, restaurants, and businesses. Our mission is to make fresh, quality produce accessible to everyone while helping farmers grow their businesses.
+          To connect South African farmers with more customers — giving farmers an additional channel to sell their produce directly to households and businesses, while ensuring fresh quality produce reaches every South African table.
         </p>
         <p className="text-muted-foreground mb-4">
           Founded with a vision to keep street vendors off the streets and into a digital marketplace, Kotulo empowers small-scale farmers in North West province and beyond to reach customers across South Africa.
