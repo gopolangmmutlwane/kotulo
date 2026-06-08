@@ -30,6 +30,7 @@ function ProductsContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const [activeCategory, setActiveCategory] = useState(category || "all");
+  const [priceFilter, setPriceFilter] = useState("all");
 
   const CATEGORIES = [
     { value: "all", label: "🛒 All" },
@@ -60,6 +61,13 @@ function ProductsContent() {
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.description?.toLowerCase().includes(searchQuery.toLowerCase())
     )
+    .filter(product => {
+      const price = parseFloat(product.retailPrice as any);
+      if (priceFilter === "under50") return price < 50;
+      if (priceFilter === "50to200") return price >= 50 && price <= 200;
+      if (priceFilter === "over200") return price > 200;
+      return true;
+    })
     .sort((a, b) => {
       switch (sortBy) {
         case "price-low":
@@ -142,14 +150,20 @@ function ProductsContent() {
             </div>
             
             <div>
-              <Button variant="outline" className="w-full" data-testid="button-filters">
-                <Filter className="mr-2 h-4 w-4" />
-                Filters
-              </Button>
+              <Select value={priceFilter} onValueChange={setPriceFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Price Range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Prices</SelectItem>
+                  <SelectItem value="under50">Under R50</SelectItem>
+                  <SelectItem value="50to200">R50 - R200</SelectItem>
+                  <SelectItem value="over200">Over R200</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
-
         {/* Results */}
         <div className="mb-4">
           <p className="text-muted-foreground">
