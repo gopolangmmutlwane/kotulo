@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { Filter, Search } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -28,6 +29,19 @@ function ProductsContent() {
   
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("name");
+  const [activeCategory, setActiveCategory] = useState(category || "all");
+
+  const CATEGORIES = [
+    { value: "all", label: "🛒 All" },
+    { value: "vegetables", label: "🥬 Vegetables" },
+    { value: "fruits", label: "🍎 Fruits" },
+    { value: "meat", label: "🥩 Meat" },
+    { value: "dairy", label: "🥛 Dairy" },
+    { value: "grains", label: "🌾 Grains" },
+    { value: "farming_supplies", label: "🚜 Farming Supplies" },
+    { value: "kotulo_merch", label: "🛍️ Kotulo Merch" },
+    { value: "other", label: "📦 Other" },
+  ];
   
   const apiUrl = category ? `/api/products?category=${category}` : "/api/products";
   const { data: products = [], isLoading } = useQuery<Product[]>({
@@ -37,6 +51,9 @@ function ProductsContent() {
   const filteredProducts = products
     .filter(product =>
       (product as any).listingType === "household" || (product as any).listingType === "both" || !(product as any).listingType
+    )
+    .filter(product =>
+      activeCategory === "all" || product.category === activeCategory
     )
     .filter(product =>
       searchQuery === "" ||
@@ -76,6 +93,23 @@ function ProductsContent() {
               ? `Fresh ${category} from South African farmers`
               : "Browse our complete collection of fresh produce"}
           </p>
+        </div>
+
+        {/* Category Tabs */}
+        <div className="mb-6 overflow-x-auto">
+          <Tabs value={activeCategory} onValueChange={setActiveCategory}>
+            <TabsList className="flex w-max gap-1 h-auto p-1">
+              {CATEGORIES.map(cat => (
+                <TabsTrigger
+                  key={cat.value}
+                  value={cat.value}
+                  className="whitespace-nowrap px-4 py-2 text-sm"
+                >
+                  {cat.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </div>
 
         {/* Filters and Search */}

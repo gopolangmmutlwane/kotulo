@@ -30,11 +30,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { Product, Farmer } from "@shared/schema";
 
 const CATEGORIES = [
-  { value: "vegetables", label: "Vegetables" },
-  { value: "meat", label: "Meat" },
-  { value: "dairy", label: "Dairy" },
-  { value: "fruits", label: "Fruits" },
-  { value: "grains", label: "Grains" },
+  { value: "vegetables", label: "🥬 Vegetables" },
+  { value: "fruits", label: "🍎 Fruits" },
+  { value: "meat", label: "🥩 Meat" },
+  { value: "dairy", label: "🥛 Dairy" },
+  { value: "grains", label: "🌾 Grains & Dry Goods" },
+  { value: "farming_supplies", label: "🚜 Farming Supplies" },
+  { value: "kotulo_merch", label: "🛍️ Kotulo Merch" },
+  { value: "other", label: "📦 Other" },
 ];
 
 const UNITS = [
