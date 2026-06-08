@@ -104,20 +104,22 @@ function ProductsContent() {
         </div>
 
         {/* Category Tabs */}
-        <div className="mb-6 overflow-x-auto">
-          <Tabs value={activeCategory} onValueChange={setActiveCategory}>
-            <TabsList className="flex w-max gap-1 h-auto p-1">
-              {CATEGORIES.map(cat => (
-                <TabsTrigger
-                  key={cat.value}
-                  value={cat.value}
-                  className="whitespace-nowrap px-4 py-2 text-sm"
-                >
-                  {cat.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2">
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat.value}
+                onClick={() => setActiveCategory(cat.value)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors border ${
+                  activeCategory === cat.value
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background text-muted-foreground border-border hover:border-primary hover:text-primary"
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Filters and Search */}
