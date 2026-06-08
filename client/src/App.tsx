@@ -33,6 +33,7 @@ import About from "@/pages/about";
 import Contact from "@/pages/contact";
 import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
+import TrackOrder from "@/pages/track-order";
 
 function Router() {
   const [location] = useLocation();
@@ -62,6 +63,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
+      <Route path="/track-order" component={TrackOrder} />
       <Route path="/operations" component={Operations} />
       <Route path="/admin" component={AdminPanel} />
       <Route path="/login" component={Login} />

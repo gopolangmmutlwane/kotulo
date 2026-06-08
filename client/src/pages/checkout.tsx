@@ -139,14 +139,19 @@ function CheckoutContent() {
         <div className="container mx-auto px-4 py-8">
           <Card className="max-w-md mx-auto text-center">
             <CardContent className="pt-6">
-              <CheckCircle className="h-16 w-16 text-primary mx-auto mb-4" />
-              <h1 className="text-2xl font-bold mb-2">Order Placed!</h1>
-              <p className="text-muted-foreground mb-4">
-                Your order #{orderId} has been placed successfully.
-              </p>
-              <p className="text-sm text-muted-foreground mb-6">
-                You will receive an email confirmation shortly.
-              </p>
+                <CheckCircle className="h-16 w-16 text-primary mx-auto mb-4" />
+                <h1 className="text-2xl font-bold mb-2">Order Placed!</h1>
+                <p className="text-muted-foreground mb-2">
+                  Your order has been placed successfully.
+                </p>
+                <div className="bg-muted rounded-lg p-3 mb-4">
+                  <p className="text-xs text-muted-foreground mb-1">Your Order ID</p>
+                  <p className="font-mono font-bold text-primary text-lg">{orderId.slice(0, 8).toUpperCase()}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Save this to track your order</p>
+                </div>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Use your Order ID and email address to track your order status.
+                </p>
               {!isAuthenticated && (
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-4 text-left">
                   <p className="font-semibold text-sm mb-1">Want to track your order?</p>
@@ -169,6 +174,13 @@ function CheckoutContent() {
                   </div>
                 </div>
               )}
+              <Button
+                onClick={() => window.location.href = `/track-order?orderId=${orderId.slice(0, 8).toUpperCase()}`}
+                variant="outline"
+                className="w-full mb-2"
+              >
+                Track My Order
+              </Button>
               <Button
                 onClick={() => window.location.href = "/"}
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
