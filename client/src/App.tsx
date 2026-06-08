@@ -29,6 +29,10 @@ import AddProduct from "@/pages/add-product";
 import FarmerAnalytics from "@/pages/farmer-analytics";
 import PaymentSuccess from "@/pages/payment-success";
 import PaymentCancelled from "@/pages/payment-cancelled";
+import About from "@/pages/about";
+import Contact from "@/pages/contact";
+import Terms from "@/pages/terms";
+import Privacy from "@/pages/privacy";
 
 function Router() {
   const [location] = useLocation();
@@ -54,6 +58,10 @@ function Router() {
       <Route path="/farmer-analytics" component={FarmerAnalytics} />
       <Route path="/payment/success" component={PaymentSuccess} />
       <Route path="/payment/cancelled" component={PaymentCancelled} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/terms" component={Terms} />
+      <Route path="/privacy" component={Privacy} />
       <Route path="/operations" component={Operations} />
       <Route path="/admin" component={AdminPanel} />
       <Route path="/login" component={Login} />
