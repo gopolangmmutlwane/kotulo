@@ -199,6 +199,26 @@ export default function FarmerDashboard() {
     enabled: !!farmerProfile,
   });
 
+  // Get orders for this farmer
+  const { data: farmerOrders = [] } = useQuery<any[]>({
+    queryKey: farmerProfile ? [`/api/orders/farmer/${farmerProfile.id}`] : [],
+    enabled: !!farmerProfile,
+    refetchInterval: 30000,
+  });
+
+  const activeOrders = farmerOrders.filter((o: any) => !["delivered", "cancelled"].includes(o.status));
+
+  const updateFarmerOrderMutation = useMutation({
+    mutationFn: async ({ orderId, status }: { orderId: string; status: string }) => {
+      const res = await apiRequest("PATCH", `/api/orders/${orderId}/status`, { status });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/orders/farmer/${farmerProfile?.id}`] });
+      toast({ title: "Order updated!", description: "Order status has been updated." });
+    },
+  });
+
   // Get notifications
   const { data: notifications = [] } = useQuery<any[]>({
     queryKey: ["/api/notifications"],
@@ -330,6 +350,75 @@ export default function FarmerDashboard() {
                     </Button>
                   </div>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Farmer Orders */}
+        {activeOrders.length > 0 && (
+          <Card className="border-l-4 border-l-primary mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingCart className="w-5 h-5" />
+                Orders to Fulfil
+                <span className="bg-primary text-primary-foreground text-xs rounded-full px-2 py-0.5">
+                  {activeOrders.length}
+                </span>
+              </CardTitle>
+              <CardDescription>Orders containing your products that need attention</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {activeOrders.map((order: any) => {
+                  const myItems = (order.items || []).filter((item: any) => item.farmerId === farmerProfile?.id);
+                  return (
+                    <div key={order.id} className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <p className="font-semibold">Order #{order.id.slice(0, 8).toUpperCase()}</p>
+                          <p className="text-sm text-muted-foreground">{new Date(order.createdAt).toLocaleDateString("en-ZA")}</p>
+                        </div>
+                        <div className="text-right">
+                          <Badge variant={
+                            order.status === "ready_for_pickup" ? "default" :
+                            order.status === "confirmed" ? "secondary" : "outline"
+                          }>
+                            {order.status?.replace(/_/g, " ")}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="space-y-1 mb-3">
+                        {myItems.map((item: any, i: number) => (
+                          <div key={i} className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">{item.name} × {item.quantity} {item.unit}</span>
+                            <span className="font-medium">R{(parseFloat(item.price) * item.quantity).toFixed(2)}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        {order.status === "pending" && (
+                          <Button size="sm" className="bg-primary hover:bg-primary/90 gap-1"
+                            onClick={() => updateFarmerOrderMutation.mutate({ orderId: order.id, status: "confirmed" })}>
+                            <CheckCircle2 className="w-4 h-4" /> Accept Order
+                          </Button>
+                        )}
+                        {order.status === "confirmed" && (
+                          <Button size="sm" variant="outline"
+                            onClick={() => updateFarmerOrderMutation.mutate({ orderId: order.id, status: "preparing" })}>
+                            Start Preparing
+                          </Button>
+                        )}
+                        {order.status === "preparing" && (
+                          <Button size="sm" className="bg-primary hover:bg-primary/90"
+                            onClick={() => updateFarmerOrderMutation.mutate({ orderId: order.id, status: "ready_for_pickup" })}>
+                            Mark Ready for Pickup
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>

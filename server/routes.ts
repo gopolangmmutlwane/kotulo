@@ -947,8 +947,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const order = await storage.createOrder(validation.data);
-
+      // Enrich items with farmerId for farmer-specific filtering
+      const enrichedItems = await Promise.all(
+        ((validation.data as any).items || []).map(async (item: any) => {
+          if (item.productId) {
+            const product = await storage.getProduct(item.productId);
+            if (product) {
+              return { ...item, farmerId: product.farmerId, farmerStatus: "pending" };
+            }
+          }
+          return { ...item, farmerStatus: "pending" };
+        })
+      );
+      const orderWithFarmerItems = { ...validation.data, items: enrichedItems };
+      const order = await storage.createOrder(orderWithFarmerItems as any);
       // Notify farmers whose products were ordered
       try {
         const items = (validation.data as any).items || [];
@@ -1091,12 +1103,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update order status
   app.patch("/api/orders/:id/status", async (req, res) => {
     try {
-      const { status } = req.body;
-      const validStatuses = ["pending", "confirmed", "preparing", "out_for_delivery", "delivered", "cancelled"];
+      const { status, vendorId } = req.body;
+      const validStatuses = ["pending", "confirmed", "preparing", "ready_for_pickup", "out_for_delivery", "delivered", "cancelled"];
       if (!validStatuses.includes(status)) {
         return res.status(400).json({ message: "Invalid status" });
       }
-      const order = await storage.updateOrder(req.params.id, { status });
+      const updates: any = { status };
+      if (vendorId) updates.vendorId = vendorId;
+      const order = await storage.updateOrder(req.params.id, updates);
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
@@ -1104,6 +1118,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Update order status error:", error);
       res.status(500).json({ message: "Failed to update order status" });
+    }
+  });
+
+  // Get orders for a specific farmer
+  app.get("/api/orders/farmer/:farmerId", async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const farmerOrders = orders.filter(order =>
+        (order.items as any[]).some((item: any) => {
+          return item.farmerId === req.params.farmerId;
+        })
+      );
+      res.json(farmerOrders);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get farmer orders" });
     }
   });
 

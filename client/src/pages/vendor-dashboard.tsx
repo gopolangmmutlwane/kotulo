@@ -41,8 +41,8 @@ export default function VendorDashboard() {
     enabled: isApproved,
   });
 
-  // For delivery partners — show pending orders in their area
-  const pendingOrders = allOrders.filter(o => o.status === "pending");
+  // For delivery partners — show ready for pickup orders
+  const pendingOrders = allOrders.filter(o => (o as any).status === "ready_for_pickup");
   const myAcceptedOrders = allOrders.filter(o =>
     (o as any).vendorId === user?.id && o.status !== "delivered" && o.status !== "cancelled"
   );

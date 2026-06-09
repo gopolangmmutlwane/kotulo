@@ -51,7 +51,7 @@ export default function VendorPortal() {
   });
 
   const isDeliveryPartner = (user as any)?.businessModel === "delivery_partner";
-  const pendingOrders = orders.filter(o => (o as any).status === "pending");
+  const pendingOrders = orders.filter(o => (o as any).status === "ready_for_pickup");
   const myActiveOrders = orders.filter(o =>
     (o as any).vendorId === user?.id &&
     (o as any).status !== "delivered" &&
@@ -351,14 +351,14 @@ export default function VendorPortal() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Package className="w-5 h-5" />
-                    Incoming Orders
+                    Ready for pickup
                     {pendingOrders.length > 0 && (
                       <span className="bg-destructive text-destructive-foreground text-xs rounded-full px-2 py-0.5">
                         {pendingOrders.length}
                       </span>
                     )}
                   </CardTitle>
-                  <CardDescription>New orders waiting to be accepted</CardDescription>
+                  <CardDescription>Orders prepared by farmers and ready for collection</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {pendingOrders.length === 0 ? (

@@ -156,6 +156,7 @@ export const orders = pgTable("orders", {
   paymentMethod: text("payment_method"), // 'card', 'cash', 'credit'
   paymentStatus: text("payment_status").default("pending"),
   specialInstructions: text("special_instructions"),
+  vendorId: varchar("vendor_id").references(() => users.id), // Vendor handling delivery
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -307,7 +308,7 @@ export const BusinessType = z.enum(['supermarket', 'restaurant', 'vendor']);
 export const ProductCategory = z.enum(['vegetables', 'fruits', 'meat', 'dairy', 'grains', 'farming_supplies', 'kotulo_merch', 'other']);
 export const ProductGrade = z.enum(['A', 'B', 'premium']);
 export const TemperatureRange = z.enum(['2-4°C', 'frozen', 'ambient']);
-export const OrderStatus = z.enum(['pending', 'confirmed', 'picking', 'picked', 'out_for_delivery', 'delivered', 'cancelled']);
+export const OrderStatus = z.enum(['pending', 'confirmed', 'preparing', 'ready_for_pickup', 'out_for_delivery', 'delivered', 'cancelled']);
 export const OrderType = z.enum(['household', 'b2b']);
 export const SlaStatus = z.enum(['on_time', 'late', 'failed']);
 export const PaymentMethod = z.enum(['card', 'cash', 'credit', 'eft']);
