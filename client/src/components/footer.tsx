@@ -54,6 +54,7 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4 text-secondary">Support</h3>
             <ul className="space-y-2 text-primary-foreground/70">
+              <li><Link href="/track-order" className="hover:text-secondary transition-colors">Track My Order</Link></li>
               <li><Link href="/about" className="hover:text-secondary transition-colors">About Kotulo</Link></li>
               <li><Link href="/contact" className="hover:text-secondary transition-colors">Contact Us</Link></li>
               <li><Link href="/terms" className="hover:text-secondary transition-colors">Terms & Conditions</Link></li>
