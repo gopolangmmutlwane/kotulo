@@ -51,7 +51,14 @@ export default function VendorPortal() {
   });
 
   const isDeliveryPartner = (user as any)?.businessModel === "delivery_partner";
-  const pendingOrders = orders.filter(o => (o as any).status === "ready_for_pickup");
+  const vendorArea = (user as any)?.serviceArea?.toLowerCase() || "";
+  const pendingOrders = orders.filter(o => {
+    if ((o as any).status !== "ready_for_pickup") return false;
+    if (!vendorArea) return true;
+    const orderArea = (o as any).deliveryAddress?.match(/\[([^\]]+)\]/)?.[1]?.toLowerCase() || "";
+    if (!orderArea) return true;
+    return orderArea.includes(vendorArea) || vendorArea.includes(orderArea);
+  });
   const myActiveOrders = orders.filter(o =>
     (o as any).vendorId === user?.id &&
     (o as any).status !== "delivered" &&
