@@ -437,7 +437,7 @@ export default function VendorPortal() {
                           </div>
                           <div className="flex items-center gap-2 text-sm">
                             <MapPin className="w-4 h-4 text-primary" />
-                            <span>{order.deliveryAddress}</span>
+                            <span>{order.deliveryAddress?.replace(/\[.*?\]\s*/, "")}</span>
                           </div>
                         </div>
                         <div className="flex gap-2">

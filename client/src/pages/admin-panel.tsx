@@ -3633,7 +3633,7 @@ export default function AdminPanel() {
                             <div>
                                 <p className="font-semibold">{order.customerName}</p>
                                 <p className="text-sm text-muted-foreground">{order.customerEmail} • {order.customerPhone}</p>
-                                <p className="text-sm text-muted-foreground">{order.deliveryAddress}</p>                            
+                                <p className="text-sm text-muted-foreground">{order.deliveryAddress?.replace(/\[.*?\]\s*/, "")}</p>                            
 			    </div>
                             <div className="text-right">
                               <p className="text-xl font-bold text-primary">R{parseFloat(order.total || "0").toFixed(2)}</p>
