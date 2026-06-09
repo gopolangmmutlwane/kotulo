@@ -163,7 +163,7 @@ export default function TrackOrder() {
                   <span className="text-primary">R{parseFloat(foundOrder.total).toFixed(2)}</span>
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Delivery to: {foundOrder.deliveryAddress}
+                  Delivery to: {foundOrder.deliveryAddress?.replace(/\[.*?\]\s*/, "")}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   Payment: {foundOrder.paymentMethod === "cod" ? "Cash on Delivery" : "PayFast"}
