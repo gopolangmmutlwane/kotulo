@@ -28,10 +28,10 @@ export function Header() {
   const { totalItems } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
 
-  // Fetch unread notifications for farmers
+  // Fetch unread notifications for farmers and vendors
   const { data: notifications = [] } = useQuery<any[]>({
     queryKey: ["/api/notifications"],
-    enabled: isAuthenticated && user?.role === "farmer",
+    enabled: isAuthenticated && (user?.role === "farmer" || user?.role === "vendor"),
     refetchInterval: 30000,
   });
   const unreadCount = notifications.filter((n: any) => !n.read).length;
@@ -123,7 +123,7 @@ export function Header() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-           {isAuthenticated && user?.role === "farmer" && (
+           {isAuthenticated && (user?.role === "farmer" || user?.role === "vendor") && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="relative">
@@ -156,7 +156,7 @@ export function Header() {
                           if (!n.read) {
                             await fetch(`/api/notifications/${n.id}/read`, { method: "PATCH", credentials: "include" });
                           }
-                          setLocation("/farmer-dashboard");
+                          setLocation(user?.role === "vendor" ? "/vendor" : "/farmer-dashboard");
                         }}
                       >
                         <p className="font-semibold text-sm">{n.title}</p>
@@ -170,7 +170,7 @@ export function Header() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="text-center text-sm text-primary cursor-pointer justify-center"
-                    onClick={() => setLocation("/farmer-dashboard")}
+                    onClick={() => setLocation(user?.role === "vendor" ? "/vendor" : "/farmer-dashboard")}
                   >
                     View All on Dashboard
                   </DropdownMenuItem>

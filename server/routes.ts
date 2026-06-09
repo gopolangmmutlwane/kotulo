@@ -974,6 +974,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("Notification error:", notifError);
       }
 
+      // Notify vendors in the delivery area
+      try {
+        const deliveryArea = (validation.data as any).deliveryArea || 
+          (validation.data.deliveryAddress?.match(/\[([^\]]+)\]/)?.[1]);
+        const allUsers = await storage.getUsers();
+        const vendors = allUsers.filter((u: any) => 
+          u.role === "vendor" && 
+          u.approvalStatus === "approved" &&
+          u.isActive &&
+          (!u.serviceArea || !deliveryArea || 
+            u.serviceArea.toLowerCase().includes(deliveryArea.toLowerCase()) ||
+            deliveryArea.toLowerCase().includes(u.serviceArea.toLowerCase()))
+        );
+        for (const vendor of vendors) {
+          await storage.createNotification({
+            userId: vendor.id,
+            title: "New Delivery Order!",
+            message: `New order #${order.id.slice(0, 8).toUpperCase()} in ${deliveryArea || "your area"}. Total: R${order.total}. Tap to accept.`,
+            type: "order",
+            orderId: order.id,
+            read: false,
+          });
+        }
+      } catch (vendorNotifError) {
+        console.error("Vendor notification error:", vendorNotifError);
+      }
+
       res.status(201).json(order);
     } catch (error) {
       res.status(500).json({ message: "Failed to create order" });
