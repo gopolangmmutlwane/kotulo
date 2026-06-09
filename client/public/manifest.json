@@ -1,82 +1,24 @@
-{
-  "name": "Kotulo",
+﻿{
+  "name": "Kotulo - Farm to Table",
   "short_name": "Kotulo",
-  "description": "Fresh produce from South African farmers",
-  "start_url": "/",
+  "description": "Fresh produce delivered straight from South African farmers to your door",
+  "theme_color": "#2d5a27",
+  "background_color": "#f5f0e8",
   "display": "standalone",
-  "background_color": "#16A34A",
-  "theme_color": "#16A34A",
-  "orientation": "portrait-primary",
-  "categories": ["food", "shopping", "business"],
-  "lang": "en-ZA",
-  "dir": "ltr",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
   "icons": [
     {
-      "src": "/icon-192x192.png",
+      "src": "/images/logo1.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "/images/logo1.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ],
-  "screenshots": [
-    {
-      "src": "/screenshot-wide.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide"
-    },
-    {
-      "src": "/screenshot-narrow.png", 
-      "sizes": "720x1280",
-      "type": "image/png",
-      "form_factor": "narrow"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Browse Vegetables",
-      "short_name": "Vegetables",
-      "description": "Browse fresh vegetables",
-      "url": "/products/vegetables",
-      "icons": [
-        {
-          "src": "/icon-192x192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Browse Meat",
-      "short_name": "Meat",
-      "description": "Browse quality meat products",
-      "url": "/products/meat",
-      "icons": [
-        {
-          "src": "/icon-192x192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Browse Dairy",
-      "short_name": "Dairy",
-      "description": "Browse fresh dairy products",
-      "url": "/products/dairy",
-      "icons": [
-        {
-          "src": "/icon-192x192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    }
-  ]
+  "categories": ["food", "shopping", "lifestyle"]
 }
