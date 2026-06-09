@@ -26,34 +26,21 @@ export default defineConfig({
           {
             src: "/images/logo1.png",
             sizes: "192x192",
-            type: "image/png",
-            purpose: "any maskable"
+            type: "image/png"
           },
           {
             src: "/images/logo1.png",
             sizes: "512x512",
-            type: "image/png",
-            purpose: "any maskable"
+            type: "image/png"
           }
         ],
-        categories: ["food", "shopping", "lifestyle"],
-        screenshots: [],
       },
       workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/kotulo\.onrender\.com\/api\/.*/i,
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "api-cache",
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24,
-              },
-            },
-          },
-        ],
+        globPatterns: ["**/*.{js,css,html,png,svg}"],
+        navigateFallback: null,
+      },
+      devOptions: {
+        enabled: false,
       },
     }),
   ],
