@@ -348,6 +348,8 @@ export default function AdminPanel() {
     queryKey: ["/api/orders"],
   });
 
+  const [orderFilter, setOrderFilter] = React.useState("active");
+
   // Update order status
   const updateOrderStatusMutation = useMutation({
     mutationFn: async ({ orderId, status }: { orderId: string; status: string }) => {
@@ -3620,37 +3622,51 @@ export default function AdminPanel() {
                   <h2 className="text-2xl font-bold">Orders</h2>
                   <p className="text-muted-foreground">Manage and track all customer orders</p>
                 </div>
-                <div className="flex gap-2 text-sm">
-                  <span className="bg-primary/10 text-primary px-3 py-1 rounded-full font-medium">
-                    {allOrders.filter((o: any) => !["delivered", "cancelled"].includes(o.status)).length} Active
-                  </span>
-                  <span className="bg-muted px-3 py-1 rounded-full font-medium">
-                    {allOrders.filter((o: any) => o.status === "delivered").length} Delivered
-                  </span>
-                  <span className="bg-destructive/10 text-destructive px-3 py-1 rounded-full font-medium">
-                    {allOrders.filter((o: any) => o.status === "cancelled").length} Cancelled
-                  </span>
-                </div>
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {[
+                  { key: "active", label: "Active", count: allOrders.filter((o: any) => !["delivered", "cancelled"].includes(o.status)).length, color: "bg-primary/10 text-primary border-primary" },
+                  { key: "all", label: "All", count: allOrders.length, color: "bg-muted text-muted-foreground border-border" },
+                  { key: "delivered", label: "Delivered", count: allOrders.filter((o: any) => o.status === "delivered").length, color: "bg-green-100 text-green-700 border-green-300" },
+                  { key: "cancelled", label: "Cancelled", count: allOrders.filter((o: any) => o.status === "cancelled").length, color: "bg-destructive/10 text-destructive border-destructive/30" },
+                ].map(filter => (
+                  <button
+                    key={filter.key}
+                    onClick={() => setOrderFilter(filter.key)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+                      orderFilter === filter.key
+                        ? filter.color + " shadow-sm"
+                        : "bg-background text-muted-foreground border-border hover:border-primary"
+                    }`}
+                  >
+                    {filter.label} ({filter.count})
+                  </button>
+                ))}
               </div>
 
               {/* Active Orders */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    Active Orders
-                    <span className="bg-primary text-primary-foreground text-xs rounded-full px-2 py-0.5">
-                      {allOrders.filter((o: any) => !["delivered", "cancelled"].includes(o.status)).length}
-                    </span>
-                  </CardTitle>
-                  <CardDescription>Pending, confirmed, preparing and out for delivery</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {allOrders.filter((o: any) => !["delivered", "cancelled"].includes(o.status)).length === 0 ? (
-                    <p className="text-muted-foreground text-center py-6">No active orders</p>
+                <CardContent className="p-4">
+                  {allOrders.filter((o: any) => {
+                    if (orderFilter === "active") return !["delivered", "cancelled"].includes(o.status);
+                    if (orderFilter === "delivered") return o.status === "delivered";
+                    if (orderFilter === "cancelled") return o.status === "cancelled";
+                    return true;
+                  }).length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8">No orders found</p>
                   ) : (
                     <div className="space-y-3">
-                      {allOrders.filter((o: any) => !["delivered", "cancelled"].includes(o.status)).map((order: any) => (
-                        <div key={order.id} className="border rounded-lg p-4 hover:bg-muted/20 transition-colors">
+                      {allOrders.filter((o: any) => {
+                        if (orderFilter === "active") return !["delivered", "cancelled"].includes(o.status);
+                        if (orderFilter === "delivered") return o.status === "delivered";
+                        if (orderFilter === "cancelled") return o.status === "cancelled";
+                        return true;
+                      }).map((order: any) => (
+                        <div key={order.id} className={`border rounded-lg p-4 hover:bg-muted/20 transition-colors ${
+                          order.status === "delivered" ? "border-l-4 border-l-primary" :
+                          order.status === "cancelled" ? "border-l-4 border-l-destructive" :
+                          "border-l-4 border-l-accent"
+                        }`}>
                           <div className="flex items-start justify-between mb-3">
                             <div>
                               <p className="font-semibold">{order.customerName}</p>
@@ -3658,122 +3674,40 @@ export default function AdminPanel() {
                               <p className="text-sm text-muted-foreground">{order.deliveryAddress?.replace(/\[.*?\]\s*/, "")}</p>
                               <p className="text-xs text-muted-foreground mt-1">{new Date(order.createdAt).toLocaleDateString("en-ZA")}</p>
                             </div>
-                            <div className="text-right space-y-2">
+                            <div className="text-right space-y-1">
                               <p className="text-xl font-bold text-primary">R{parseFloat(order.total || "0").toFixed(2)}</p>
                               <div className="flex items-center gap-2 justify-end">
                                 <span className="text-xs text-muted-foreground">
-                                  {order.paymentMethod === "cod" ? "💵 COD" : order.paymentMethod === "payfast" ? "💳 PayFast" : "⏳ Unpaid"}
+                                  {order.paymentMethod === "cod" ? "💵 COD" : order.paymentMethod === "payfast" ? "💳 PayFast" : "⏳ No payment"}
                                 </span>
                                 <span className={`text-xs font-medium ${order.paymentStatus === "paid" ? "text-primary" : "text-muted-foreground"}`}>
                                   {order.paymentStatus === "paid" ? "✅ Paid" : "⏳ Unpaid"}
                                 </span>
                               </div>
-                              <Select
-                                value={order.status}
-                                onValueChange={(status) => updateOrderStatusMutation.mutate({ orderId: order.id, status })}
-                              >
-                                <SelectTrigger className="w-44 h-8 text-xs">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="pending">Pending</SelectItem>
-                                  <SelectItem value="confirmed">Confirmed</SelectItem>
-                                  <SelectItem value="preparing">Preparing</SelectItem>
-                                  <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
-                                  <SelectItem value="delivered">Delivered</SelectItem>
-                                  <SelectItem value="cancelled">Cancelled</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-                          <div className="border-t pt-2 space-y-1">
-                            {(order.items || []).map((item: any, index: number) => (
-                              <div key={index} className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">{item.name} × {item.quantity} {item.unit}</span>
-                                <span className="font-medium">R{(parseFloat(item.price) * item.quantity).toFixed(2)}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Delivered Orders */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    Delivered Orders
-                    <span className="bg-muted text-muted-foreground text-xs rounded-full px-2 py-0.5">
-                      {allOrders.filter((o: any) => o.status === "delivered").length}
-                    </span>
-                  </CardTitle>
-                  <CardDescription>Successfully completed orders</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {allOrders.filter((o: any) => o.status === "delivered").length === 0 ? (
-                    <p className="text-muted-foreground text-center py-6">No delivered orders yet</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {allOrders.filter((o: any) => o.status === "delivered").map((order: any) => (
-                        <div key={order.id} className="border rounded-lg p-4 bg-primary/5">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <p className="font-semibold">{order.customerName}</p>
-                              <p className="text-sm text-muted-foreground">{order.customerEmail} • {order.customerPhone}</p>
-                              <p className="text-sm text-muted-foreground">{order.deliveryAddress?.replace(/\[.*?\]\s*/, "")}</p>
-                              <p className="text-xs text-muted-foreground mt-1">{new Date(order.createdAt).toLocaleDateString("en-ZA")}</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-xl font-bold text-primary">R{parseFloat(order.total || "0").toFixed(2)}</p>
-                              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">✅ Delivered</span>
-                            </div>
-                          </div>
-                          <div className="border-t pt-2 space-y-1">
-                            {(order.items || []).map((item: any, index: number) => (
-                              <div key={index} className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">{item.name} × {item.quantity} {item.unit}</span>
-                                <span className="font-medium">R{(parseFloat(item.price) * item.quantity).toFixed(2)}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Cancelled Orders */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    Cancelled Orders
-                    <span className="bg-destructive/10 text-destructive text-xs rounded-full px-2 py-0.5">
-                      {allOrders.filter((o: any) => o.status === "cancelled").length}
-                    </span>
-                  </CardTitle>
-                  <CardDescription>Orders that were cancelled</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {allOrders.filter((o: any) => o.status === "cancelled").length === 0 ? (
-                    <p className="text-muted-foreground text-center py-6">No cancelled orders</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {allOrders.filter((o: any) => o.status === "cancelled").map((order: any) => (
-                        <div key={order.id} className="border rounded-lg p-4 bg-destructive/5">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <p className="font-semibold">{order.customerName}</p>
-                              <p className="text-sm text-muted-foreground">{order.customerEmail} • {order.customerPhone}</p>
-                              <p className="text-sm text-muted-foreground">{order.deliveryAddress?.replace(/\[.*?\]\s*/, "")}</p>
-                              <p className="text-xs text-muted-foreground mt-1">{new Date(order.createdAt).toLocaleDateString("en-ZA")}</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-xl font-bold text-destructive">R{parseFloat(order.total || "0").toFixed(2)}</p>
-                              <span className="text-xs bg-destructive/10 text-destructive px-2 py-1 rounded-full">❌ Cancelled</span>
+                              {!["delivered", "cancelled"].includes(order.status) ? (
+                                <Select
+                                  value={order.status}
+                                  onValueChange={(status) => updateOrderStatusMutation.mutate({ orderId: order.id, status })}
+                                >
+                                  <SelectTrigger className="w-44 h-8 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="pending">Pending</SelectItem>
+                                    <SelectItem value="confirmed">Confirmed</SelectItem>
+                                    <SelectItem value="preparing">Preparing</SelectItem>
+                                    <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
+                                    <SelectItem value="delivered">Delivered</SelectItem>
+                                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              ) : (
+                                <span className={`text-xs px-2 py-1 rounded-full ${
+                                  order.status === "delivered" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"
+                                }`}>
+                                  {order.status === "delivered" ? "✅ Delivered" : "❌ Cancelled"}
+                                </span>
+                              )}
                             </div>
                           </div>
                           <div className="border-t pt-2 space-y-1">
