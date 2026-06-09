@@ -343,11 +343,10 @@ function HomeContent() {
                   </>
                 ) : (
                   <>
-                    <h2 className="text-4xl font-bold">Download Our Mobile App</h2>
+                    <h2 className="text-4xl font-bold">Install Kotulo on Your Phone</h2>
                     <p className="text-xl leading-relaxed opacity-95 max-w-lg">
-                      Get the Kotulo app for easier shopping, exclusive deals, and direct farmer connections. Install as a Progressive Web App for the best experience.
+                      Add Kotulo to your home screen for a faster, app-like experience. No app store needed — install directly from your browser in seconds!
                     </p>
-                  </>
                 )}
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
