@@ -1114,6 +1114,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
+
+      // Notify vendors when order is ready for pickup
+      if (status === "ready_for_pickup") {
+        try {
+          const allUsers = await storage.getUsers();
+          const vendors = allUsers.filter((u: any) =>
+            u.role === "vendor" && u.approvalStatus === "approved" && u.isActive
+          );
+          for (const vendor of vendors) {
+            await storage.createNotification({
+              userId: vendor.id,
+              title: "Order Ready for Pickup! 🚚",
+              message: `Order #${req.params.id.slice(0, 8).toUpperCase()} is ready for collection. R${order.total}`,
+              type: "order",
+              orderId: req.params.id,
+              read: false,
+            });
+          }
+        } catch (notifError) {
+          console.error("Vendor ready notification error:", notifError);
+        }
+      }
+
       res.json(order);
     } catch (error) {
       console.error("Update order status error:", error);
