@@ -1118,9 +1118,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Notify vendors when order is ready for pickup
       if (status === "ready_for_pickup") {
         try {
+          const currentOrder = await storage.getOrder(req.params.id);
+          const deliveryArea = currentOrder?.deliveryAddress?.match(/\[([^\]]+)\]/)?.[1];
           const allUsers = await storage.getUsers();
           const vendors = allUsers.filter((u: any) =>
-            u.role === "vendor" && u.approvalStatus === "approved" && u.isActive
+            u.role === "vendor" && 
+            u.approvalStatus === "approved" && 
+            u.isActive &&
+            (!u.serviceArea || !deliveryArea ||
+              u.serviceArea.toLowerCase().includes(deliveryArea.toLowerCase()) ||
+              deliveryArea.toLowerCase().includes(u.serviceArea.toLowerCase()))
           );
           for (const vendor of vendors) {
             await storage.createNotification({
