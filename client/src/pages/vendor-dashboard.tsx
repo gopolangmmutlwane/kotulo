@@ -64,10 +64,7 @@ export default function VendorDashboard() {
   // Accept order
   const acceptOrderMutation = useMutation({
     mutationFn: async (orderId: string) => {
-      const res = await apiRequest("PATCH", `/api/orders/${orderId}/status`, {
-        status: "confirmed",
-        vendorId: user?.id,
-      });
+      const res = await apiRequest("PATCH", `/api/orders/${orderId}/status`, { status: "out_for_delivery", vendorId: user?.id });
       return res.json();
     },
     onSuccess: () => {
