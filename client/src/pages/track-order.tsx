@@ -39,6 +39,7 @@ export default function TrackOrder() {
       { key: "pending", label: "Order Placed" },
       { key: "confirmed", label: "Confirmed" },
       { key: "preparing", label: "Preparing" },
+      { key: "ready_for_pickup", label: "Ready for Pickup" },
       { key: "out_for_delivery", label: "Out for Delivery" },
       { key: "delivered", label: "Delivered" },
     ];
