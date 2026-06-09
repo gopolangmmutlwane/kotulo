@@ -347,6 +347,7 @@ function HomeContent() {
                     <p className="text-xl leading-relaxed opacity-95 max-w-lg">
                       Add Kotulo to your home screen for a faster, app-like experience. No app store needed — install directly from your browser in seconds!
                     </p>
+                  </>
                 )}
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
