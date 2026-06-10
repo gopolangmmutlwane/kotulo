@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Carrot, Beef, Milk, ShoppingBag, UserPlus, Download } from "lucide-react";
+import { useEffect, useState } from "react";import { Carrot, Beef, Milk, ShoppingBag, UserPlus, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -14,6 +14,13 @@ import { Product, Farmer } from "@shared/schema";
 function HomeContent() {
   const [, setLocation] = useLocation();
   const { user, isAuthenticated } = useAuth();
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  useEffect(() => {
+    const handler = (e: any) => { e.preventDefault(); setInstallPrompt(e); };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+  const handleInstallClick = () => { if (installPrompt) { installPrompt.prompt(); } else { alert("To install: tap the Share button in Safari, then 'Add to Home Screen'"); } };;
   const { data: featuredProducts = [], isLoading: productsLoading } = useQuery<Product[]>({
     queryKey: ["/api/products", "featured"]
   });
@@ -364,7 +371,7 @@ function HomeContent() {
                   </>
                 ) : (
                   <>
-                    <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90 border-2 border-secondary/20 px-6 py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-300" data-testid="button-install-app">
+                    <Button onClick={handleInstallClick} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 border-2 border-secondary/20 px-6 py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-300" data-testid="button-install-app">
                       <Download className="mr-2 h-5 w-5" />
                       Install App
                     </Button>
