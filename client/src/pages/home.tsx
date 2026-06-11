@@ -150,9 +150,9 @@ function HomeContent() {
               </>
             ) : (
               <>
-                <h2 className="text-4xl font-bold mb-4 text-card-foreground">Comprehensive Marketplace Features</h2>
+                <h2 className="text-4xl font-bold mb-4 text-card-foreground">Shop Fresh, Shop Local</h2>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  Everything you need for fresh farm-to-table shopping and business operations
+                  Browse fresh vegetables, quality meat, and farm-fresh dairy from trusted local farmers
                 </p>
               </>
             )}
@@ -231,30 +231,29 @@ function HomeContent() {
             )}
           </div>
           
-          {/* Marketplace Features Banner */}
+          {/* Why Choose Kotulo Banner */}
           <div className="mt-16 bg-gradient-to-r from-secondary/20 to-farm-gold/20 border border-border rounded-2xl p-8 shadow-lg">
             <div className="text-center">
-              <h3 className="text-3xl font-bold mb-4 text-card-foreground">Multi-Role Marketplace Platform</h3>
+              <h3 className="text-3xl font-bold mb-4 text-card-foreground">Why Choose Kotulo</h3>
               <p className="text-lg mb-8 text-muted-foreground max-w-3xl mx-auto">
-                Experience our comprehensive farm-to-door platform with advanced B2B ordering, vendor management, 
-                real-time logistics, and 60-minute delivery SLA.
+                We connect you directly with South African farmers for the freshest produce, delivered fast and reliably to your door.
               </p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                 <div className="text-card-foreground">
-                  <div className="text-4xl font-bold text-primary mb-2">60min</div>
-                  <div className="text-sm text-muted-foreground">Delivery SLA</div>
+                  <div className="text-4xl font-bold text-primary mb-2">Fast</div>
+                  <div className="text-sm text-muted-foreground">Delivery</div>
                 </div>
                 <div className="text-card-foreground">
-                  <div className="text-4xl font-bold text-accent mb-2">B2B</div>
-                  <div className="text-sm text-muted-foreground">Bulk Ordering</div>
+                  <div className="text-4xl font-bold text-accent mb-2">Fresh</div>
+                  <div className="text-sm text-muted-foreground">Daily Stock</div>
                 </div>
                 <div className="text-card-foreground">
-                  <div className="text-4xl font-bold text-secondary mb-2">Hubs</div>
-                  <div className="text-sm text-muted-foreground">Micro-Fulfillment</div>
+                  <div className="text-4xl font-bold text-secondary mb-2">Local</div>
+                  <div className="text-sm text-muted-foreground">SA Farmers</div>
                 </div>
                 <div className="text-card-foreground">
-                  <div className="text-4xl font-bold text-farm-gold mb-2">5</div>
-                  <div className="text-sm text-muted-foreground">User Types</div>
+                  <div className="text-4xl font-bold text-farm-gold mb-2">100%</div>
+                  <div className="text-sm text-muted-foreground">Quality Guaranteed</div>
                 </div>
               </div>
             </div>
