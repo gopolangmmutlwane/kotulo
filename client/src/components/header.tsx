@@ -27,6 +27,7 @@ export function Header() {
   const [cartOpen, setCartOpen] = useState(false);
   const { totalItems } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
+  const isDeliveryPartner = (user as any)?.businessModel === "delivery_partner";
 
   // Fetch unread notifications for farmers and vendors
   const { data: notifications = [] } = useQuery<any[]>({
@@ -94,9 +95,9 @@ export function Header() {
     // Vendors
     if (role === "vendor") {
       roleNav.push(dashboardLink);
-      if (isApproved) {
-        roleNav.push({ name: "B2B", href: "/b2b", roles: ["vendor"] }); // To stock from farmers
-      } else {
+        if (isApproved && !isDeliveryPartner) {
+          roleNav.push({ name: "B2B", href: "/b2b", roles: ["vendor"] }); // Only for resellers
+        } else {
         // Show application link for pending vendors
         roleNav.push({ name: "Application", href: "/application", roles: ["vendor"] });
       }
