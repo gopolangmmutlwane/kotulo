@@ -328,6 +328,22 @@ function HomeContent() {
                 {farmers.slice(0, 3).map((farmer) => (
                   <FarmerCard key={farmer.id} farmer={farmer} />
                 ))}
+                {farmers.length < 3 && Array.from({ length: 3 - farmers.length }).map((_, i) => (
+                  <div key={`placeholder-${i}`} className="bg-muted/30 rounded-xl p-6 border-2 border-dashed border-border flex flex-col items-center justify-center text-center min-h-[200px]">
+                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-2xl">🌱</span>
+                    </div>
+                    <h3 className="font-semibold text-card-foreground mb-2">Become a Farmer</h3>
+                    <p className="text-sm text-muted-foreground mb-4">Join Kotulo and sell your produce directly to customers</p>
+                    <Button
+                      size="sm"
+                      onClick={() => setLocation("/signup")}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                    >
+                      Join Now
+                    </Button>
+                  </div>
+                ))}
               </div>
             )}
           </div>
