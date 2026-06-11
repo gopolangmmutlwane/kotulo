@@ -199,11 +199,17 @@ export default function VendorPortal() {
           </Card>
         </div>
 
-        <Tabs defaultValue="products" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="products" data-testid="tab-products">Products</TabsTrigger>
-            <TabsTrigger value="inventory" data-testid="tab-inventory">Inventory</TabsTrigger>
-            <TabsTrigger value="orders" data-testid="tab-orders">Orders</TabsTrigger>
+        <Tabs defaultValue={isDeliveryPartner ? "orders" : "products"} className="space-y-8">
+          <TabsList className={`grid w-full ${isDeliveryPartner ? "grid-cols-3" : "grid-cols-5"}`}>
+            {!isDeliveryPartner && (
+              <TabsTrigger value="products" data-testid="tab-products">Products</TabsTrigger>
+            )}
+            {!isDeliveryPartner && (
+              <TabsTrigger value="inventory" data-testid="tab-inventory">Inventory</TabsTrigger>
+            )}
+            <TabsTrigger value="orders" data-testid="tab-orders">
+              {isDeliveryPartner ? "Deliveries" : "Orders"}
+            </TabsTrigger>
             <TabsTrigger value="analytics" data-testid="tab-analytics">Analytics</TabsTrigger>
             <TabsTrigger value="settings" data-testid="tab-settings">Settings</TabsTrigger>
           </TabsList>
