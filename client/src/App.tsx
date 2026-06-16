@@ -7,33 +7,35 @@ import { RoleProvider } from "@/hooks/use-role";
 import { CartProvider } from "@/hooks/use-cart";
 import { AuthProvider } from "@/hooks/use-auth";
 import { useSessionTimeout } from "@/hooks/use-session-timeout";
-import NotFound from "@/pages/not-found";
-import Home from "@/pages/home";
-import Products from "@/pages/products";
-import FarmerProfile from "@/pages/farmer-profile";
-import Checkout from "@/pages/checkout";
-import Dashboard from "@/pages/dashboard";
-import CustomerDashboard from "@/pages/customer-dashboard";
-import FarmerDashboard from "@/pages/farmer-dashboard";
-import VendorDashboard from "@/pages/vendor-dashboard";
-import Application from "@/pages/application";
-import B2BOrdering from "@/pages/b2b-ordering";
-import VendorPortal from "@/pages/vendor-portal";
-import Operations from "@/pages/operations";
-import AdminPanel from "@/pages/admin-panel";
-import Login from "@/pages/login";
-import Signup from "@/pages/signup";
-import ForgotPassword from "@/pages/forgot-password";
-import ResetPassword from "@/pages/reset-password";
-import AddProduct from "@/pages/add-product";
-import FarmerAnalytics from "@/pages/farmer-analytics";
-import PaymentSuccess from "@/pages/payment-success";
-import PaymentCancelled from "@/pages/payment-cancelled";
-import About from "@/pages/about";
-import Contact from "@/pages/contact";
-import Terms from "@/pages/terms";
-import Privacy from "@/pages/privacy";
-import TrackOrder from "@/pages/track-order";
+import { lazy, Suspense } from "react";
+
+const NotFound = lazy(() => import("@/pages/not-found"));
+const Home = lazy(() => import("@/pages/home"));
+const Products = lazy(() => import("@/pages/products"));
+const FarmerProfile = lazy(() => import("@/pages/farmer-profile"));
+const Checkout = lazy(() => import("@/pages/checkout"));
+const Dashboard = lazy(() => import("@/pages/dashboard"));
+const CustomerDashboard = lazy(() => import("@/pages/customer-dashboard"));
+const FarmerDashboard = lazy(() => import("@/pages/farmer-dashboard"));
+const VendorDashboard = lazy(() => import("@/pages/vendor-dashboard"));
+const Application = lazy(() => import("@/pages/application"));
+const B2BOrdering = lazy(() => import("@/pages/b2b-ordering"));
+const VendorPortal = lazy(() => import("@/pages/vendor-portal"));
+const Operations = lazy(() => import("@/pages/operations"));
+const AdminPanel = lazy(() => import("@/pages/admin-panel"));
+const Login = lazy(() => import("@/pages/login"));
+const Signup = lazy(() => import("@/pages/signup"));
+const ForgotPassword = lazy(() => import("@/pages/forgot-password"));
+const ResetPassword = lazy(() => import("@/pages/reset-password"));
+const AddProduct = lazy(() => import("@/pages/add-product"));
+const FarmerAnalytics = lazy(() => import("@/pages/farmer-analytics"));
+const PaymentSuccess = lazy(() => import("@/pages/payment-success"));
+const PaymentCancelled = lazy(() => import("@/pages/payment-cancelled"));
+const About = lazy(() => import("@/pages/about"));
+const Contact = lazy(() => import("@/pages/contact"));
+const Terms = lazy(() => import("@/pages/terms"));
+const Privacy = lazy(() => import("@/pages/privacy"));
+const TrackOrder = lazy(() => import("@/pages/track-order"));
 
 function Router() {
   const [location] = useLocation();
@@ -42,6 +44,7 @@ function Router() {
   console.log("Current route:", location);
   
   return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen text-farm-green">Loading...</div>}>
     <Switch>
       <Route path="/products/:category" component={Products} />
       <Route path="/products" component={Products} />
@@ -73,6 +76,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route component={NotFound} />
     </Switch>
+    </Suspense>
   );
 }
 
