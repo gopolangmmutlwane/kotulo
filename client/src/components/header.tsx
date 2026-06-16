@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Search, ShoppingCart, User, Menu, Sprout, LogOut, Bell } from "lucide-react";
+import { ShoppingCart, User, Menu, Sprout, LogOut, Bell } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
@@ -23,7 +22,6 @@ const logo = "/images/logo1.png";
 
 export function Header() {
   const [location, setLocation] = useLocation();
-  const [searchQuery, setSearchQuery] = useState("");
   const [cartOpen, setCartOpen] = useState(false);
   const { totalItems } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
@@ -239,21 +237,6 @@ export function Header() {
                 </div>
               </SheetContent>
             </Sheet>
-            
-            {/* Hide search for admin users */}
-            {user?.role !== "admin" && (
-              <div className="hidden md:flex items-center bg-muted rounded-lg px-4 py-2 min-w-64">
-                <Search className="h-4 w-4 text-muted-foreground mr-2" />
-                <Input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent border-none outline-none flex-1 p-0"
-                  data-testid="input-search"
-                />
-              </div>
-            )}
             
             {/* Hide cart for admin users */}
             {user?.role !== "admin" && (
