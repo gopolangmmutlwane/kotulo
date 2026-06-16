@@ -29,6 +29,10 @@ function ProductsContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const [activeCategory, setActiveCategory] = useState(category || "all");
+
+useEffect(() => {
+  setActiveCategory(category || "all");
+}, [category]);
   const [priceFilter, setPriceFilter] = useState("all");
 
   const CATEGORIES = [
