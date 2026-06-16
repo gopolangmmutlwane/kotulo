@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kotulo-v1';
+const CACHE_NAME = 'kotulo-v2';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -33,65 +33,36 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request).catch(() => {
-          // If both cache and network fail, return offline page for navigation requests
-          if (event.request.destination === 'document') {
-            return new Response(
-              `
-              <!DOCTYPE html>
-              <html>
-                <head>
-                  <title>Kotulo - Offline</title>
-                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                  <style>
-                    body { 
-                      font-family: Arial, sans-serif; 
-                      text-align: center; 
-                      padding: 50px;
-                      background: #F4EFD9;
-                    }
-                    .container {
-                      max-width: 420px;
-                      margin: 0 auto;
-                      background: #FFFFFF;
-                      padding: 36px;
-                      border-radius: 12px;
-                      box-shadow: 0 6px 30px rgba(16,32,16,0.08);
-                    }
-                   h1 { color: #1E5832; margin-bottom: 16px; } 
-                   h2 { color: #4F8F2F; margin-bottom: 12px; } 
-                   p { color: #55614F; line-height: 1.5; }
-                  </style>
-                </head>
-                <body>
-                  <div class="container">
-                    <h1>🌱 Kotulo</h1>
-                    <h2>You're offline</h2>
-                    <p>Please check your internet connection and try again.</p>
-                  </div>
-                </body>
-              </html>
-              `,
-              { 
-                headers: { 'Content-Type': 'text/html' } 
-              }
-            );
-          }
-          return new Response('Offline', { status: 503 });
-        });
-      })
-  );
-});
+  const { request } = event;
+  const url = new URL(request.url);
 
-// Background sync for offline orders (future enhancement)
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'background-sync') {
-    event.waitUntil(doBackgroundSync());
+  // Always go to network for JS/CSS assets (Vite hashed bundles)
+  if (request.destination === 'script' || request.destination === 'style') {
+    event.respondWith(
+      fetch(request).catch(() => new Response('Offline', { status: 503 }))
+    );
+    return;
   }
+
+  // Network-first for API calls
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(
+      fetch(request).catch(() => new Response('Offline', { status: 503 }))
+    );
+    return;
+  }
+
+  // Cache-first for static assets (icons, manifest)
+  event.respondWith(
+    caches.match(request).then((response) => {
+      return response || fetch(request).catch(() => {
+        if (request.destination === 'document') {
+          return caches.match('/');
+        }
+        return new Response('Offline', { status: 503 });
+      });
+    })
+  );
 });
 
 async function doBackgroundSync() {
