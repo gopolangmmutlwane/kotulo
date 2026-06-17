@@ -221,8 +221,7 @@ export default function B2BOrdering() {
       const product = [...farmerProducts, ...products].find(p => p.id === id);
       return { productId: id, name: product?.name, quantity: qty, unit: product?.unit, price: product?.wholesalePrice || product?.retailPrice };
     });
-    const total = getTotalCost([...farmerProducts, ...products]);
-    await fetch("/api/purchase-orders", {
+    const res = await fetch("/api/purchase-orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -236,6 +235,11 @@ export default function B2BOrdering() {
         paymentTerms: "cod",
       }),
     });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(`Failed to submit order: ${data.message}`);
+      return;
+    }
     setOrderItems({});
     setShowOrderSummary(false);
     queryClient.invalidateQueries({ queryKey: ["/api/purchase-orders"] });
