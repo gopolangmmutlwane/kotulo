@@ -83,6 +83,7 @@ export default function B2BOrdering() {
   // Get purchase orders
   const { data: purchaseOrders = [] } = useQuery<any[]>({
     queryKey: ["/api/purchase-orders"],
+    staleTime: 0,
   });
 
   // Filter products by farmer for vendor view - only show bulk or both
