@@ -1169,8 +1169,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Purchase Orders
   app.post("/api/purchase-orders", async (req, res) => {
     try {
-      const { user } = req.session as any;
-      if (!user) return res.status(401).json({ message: "Unauthorized" });
+      const userId = req.session?.userId;
+      if (!userId) return res.status(401).json({ message: "Unauthorized" });
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(401).json({ message: "User not found" });
       const poNumber = `PO-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
       const po = await storage.createPurchaseOrder({
         ...req.body,
@@ -1203,8 +1205,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/purchase-orders", async (req, res) => {
     try {
-      const { user } = req.session as any;
-      if (!user) return res.status(401).json({ message: "Unauthorized" });
+      const userId = req.session?.userId;
+      if (!userId) return res.status(401).json({ message: "Unauthorized" });
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(401).json({ message: "User not found" });
       const buyerId = user.role === "admin" ? undefined : user.id;
       const orders = await storage.getPurchaseOrders(buyerId);
       res.json(orders);
