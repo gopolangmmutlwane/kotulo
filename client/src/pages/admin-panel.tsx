@@ -1476,7 +1476,7 @@ export default function AdminPanel() {
           <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
           
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="users">User Management</TabsTrigger>
               <TabsTrigger value="products">Product Management</TabsTrigger>
