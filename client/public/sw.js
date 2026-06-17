@@ -36,6 +36,14 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // Always bypass SW for non-GET requests (POST, PATCH, DELETE)
+  if (request.method !== 'GET') {
+    event.respondWith(fetch(request));
+    return;
+  }
+
+  // Always go to network for JS/CSS assets (Vite hashed bundles)
+
   // Always go to network for JS/CSS assets (Vite hashed bundles)
   if (request.destination === 'script' || request.destination === 'style') {
     event.respondWith(
