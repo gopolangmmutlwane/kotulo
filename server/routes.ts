@@ -1166,6 +1166,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Purchase Orders
+  app.post("/api/purchase-orders", async (req, res) => {
+    try {
+      const { user } = req.session as any;
+      if (!user) return res.status(401).json({ message: "Unauthorized" });
+      const poNumber = `PO-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+      const po = await storage.createPurchaseOrder({
+        ...req.body,
+        poNumber,
+        buyerId: user.id,
+        status: "draft",
+      });
+      // Notify the supplier farmer
+      try {
+        const farmer = await storage.getFarmer(req.body.supplierId);
+        if (farmer?.userId) {
+          await storage.createNotification({
+            userId: farmer.userId,
+            title: "New Purchase Order!",
+            message: `${user.name} submitted a purchase order (${poNumber}). Total: R${req.body.total}`,
+            type: "order",
+            orderId: po.id,
+            read: false,
+          });
+        }
+      } catch (e) {
+        console.error("PO notification error:", e);
+      }
+      res.status(201).json(po);
+    } catch (err) {
+      console.error("Create PO error:", err);
+      res.status(500).json({ message: "Failed to create purchase order" });
+    }
+  });
+
+  app.get("/api/purchase-orders", async (req, res) => {
+    try {
+      const { user } = req.session as any;
+      if (!user) return res.status(401).json({ message: "Unauthorized" });
+      const buyerId = user.role === "admin" ? undefined : user.id;
+      const orders = await storage.getPurchaseOrders(buyerId);
+      res.json(orders);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to fetch purchase orders" });
+    }
+  });
+
+  app.patch("/api/purchase-orders/:id/status", async (req, res) => {
+    try {
+      const { status } = req.body;
+      const po = await storage.updatePurchaseOrder(req.params.id, { status });
+      res.json(po);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to update purchase order" });
+    }
+  });
+
   // Get order by id
   app.get("/api/orders/:id", async (req, res) => {
     try {

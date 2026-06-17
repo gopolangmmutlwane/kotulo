@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,8 @@ import {
 
 export default function B2BOrdering() {
   const [orderType, setOrderType] = useState("one_time");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
   const [orderItems, setOrderItems] = useState<Record<string, number>>({});
   const [quantities, setQuantities] = useState<Record<string, string>>({});
   const [showOrderSummary, setShowOrderSummary] = useState(false);
@@ -77,6 +79,10 @@ export default function B2BOrdering() {
   // Get orders for B2B/vendor purchase history
   const { data: orders = [] } = useQuery<Order[]>({
     queryKey: ["/api/orders"],
+  });
+  // Get purchase orders
+  const { data: purchaseOrders = [] } = useQuery<any[]>({
+    queryKey: ["/api/purchase-orders"],
   });
 
   // Filter products by farmer for vendor view - only show bulk or both
@@ -202,9 +208,45 @@ export default function B2BOrdering() {
                       </div>
                       <Button 
                         className="bg-primary hover:bg-primary/90 text-primary-foreground px-8"
-                        onClick={() => alert("Purchase order feature coming soon!")}
+                        onClick={async () => {
+  if (isSubmitting) return;
+  setIsSubmitting(true);
+  try {
+    const firstProductId = Object.keys(orderItems)[0];
+    const firstProduct = [...farmerProducts, ...products].find(p => p.id === firstProductId);
+    const supplierId = firstProduct?.farmerId;
+    if (!supplierId) { alert("Could not determine supplier."); return; }
+    const items = Object.entries(orderItems).map(([id, qty]) => {
+      const product = [...farmerProducts, ...products].find(p => p.id === id);
+      return { productId: id, name: product?.name, quantity: qty, unit: product?.unit, price: product?.wholesalePrice || product?.retailPrice };
+    });
+    const total = getTotalCost([...farmerProducts, ...products]);
+    await fetch("/api/purchase-orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        supplierId,
+        orderType,
+        items,
+        subtotal: total.toFixed(2),
+        total: total.toFixed(2),
+        deliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        paymentTerms: "cod",
+      }),
+    });
+    setOrderItems({});
+    setShowOrderSummary(false);
+    queryClient.invalidateQueries({ queryKey: ["/api/purchase-orders"] });
+    alert("Purchase order submitted successfully! The farmer will be notified.");
+  } catch (e) {
+    alert("Failed to submit order. Please try again.");
+  } finally {
+    setIsSubmitting(false);
+  }
+}}
                       >
-                        Confirm Order
+                        {isSubmitting ? "Submitting..." : "Confirm Order"}
                       </Button>
                     </div>
                   </CardContent>
@@ -421,14 +463,58 @@ export default function B2BOrdering() {
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Purchase Orders</h2>
             </div>
-
-            {orders.length === 0 ? (
+            {purchaseOrders.length === 0 ? (
               <Card><CardContent className="p-8 text-center">
-                <p className="text-muted-foreground">No purchase orders yet.</p>
+                <p className="text-muted-foreground">No purchase orders yet. Add items and confirm an order to get started.</p>
               </CardContent></Card>
             ) : (
               <div className="space-y-4">
-                {orders.map(order => (
+                {purchaseOrders.map(order => (
+                  <Card key={order.id}>
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="flex items-center space-x-2">
+                            <FileText className="w-5 h-5" />
+                            <span>{order.poNumber}</span>
+                          </CardTitle>
+                          <CardDescription>Placed {new Date(order.createdAt).toLocaleDateString("en-ZA")}</CardDescription>
+                        </div>
+                        <Badge variant="outline" className={
+                          order.status === "confirmed" ? "bg-primary/10 text-primary" :
+                          order.status === "delivered" ? "bg-green-100 text-green-700" :
+                          order.status === "cancelled" ? "bg-destructive/10 text-destructive" :
+                          "bg-secondary/30 text-secondary-foreground"
+                        }>
+                          {order.status}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Total:</span>
+                          <p className="font-semibold">R{parseFloat(order.total).toFixed(2)}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Items:</span>
+                          <p className="font-semibold">{Array.isArray(order.items) ? order.items.length : 0} products</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Payment:</span>
+                          <p className="font-semibold">{order.paymentTerms || "COD"}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Delivery:</span>
+                          <p className="font-semibold">{order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString("en-ZA") : "TBD"}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
                   <Card key={order.id}>
                     <CardHeader>
                       <div className="flex justify-between items-start">

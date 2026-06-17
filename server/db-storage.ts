@@ -123,4 +123,22 @@ export class DbStorage implements IStorage {
   async setPlatformConfig(config: Record<string, any>): Promise<Record<string, any>> {
     return config;
   }
+  async createPurchaseOrder(po: any): Promise<any> {
+    const result = await db.insert(schema.purchaseOrders).values(po).returning();
+    return result[0];
+  }
+  async getPurchaseOrders(buyerId?: string): Promise<any[]> {
+    if (buyerId) {
+      return db.select().from(schema.purchaseOrders)
+        .where(eq(schema.purchaseOrders.buyerId, buyerId))
+        .orderBy(schema.purchaseOrders.createdAt);
+    }
+    return db.select().from(schema.purchaseOrders)
+      .orderBy(schema.purchaseOrders.createdAt);
+  }
+  async updatePurchaseOrder(id: string, updates: any): Promise<any> {
+    const result = await db.update(schema.purchaseOrders)
+      .set(updates).where(eq(schema.purchaseOrders.id, id)).returning();
+    return result[0];
+  }
 }

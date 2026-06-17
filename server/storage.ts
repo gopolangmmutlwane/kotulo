@@ -45,6 +45,10 @@ export interface IStorage {
   // Platform Config
   getPlatformConfig(): Promise<Record<string, any>>;
   setPlatformConfig(config: Record<string, any>): Promise<Record<string, any>>;
+  // Purchase Orders
+  createPurchaseOrder(po: any): Promise<any>;
+  getPurchaseOrders(buyerId?: string): Promise<any[]>;
+  updatePurchaseOrder(id: string, updates: any): Promise<any>;
 }
 
 import { DbStorage } from './db-storage';
