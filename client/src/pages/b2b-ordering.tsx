@@ -515,59 +515,6 @@ export default function B2BOrdering() {
               </div>
             )}
           </TabsContent>
-                  <Card key={order.id}>
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="flex items-center space-x-2">
-                            <FileText className="w-5 h-5" />
-                            <span>Order #{order.id.slice(0, 8).toUpperCase()}</span>
-                          </CardTitle>
-                          <CardDescription>{order.customerName} · {order.customerEmail}</CardDescription>
-                        </div>
-                        <Badge
-                          variant="outline"
-                          className={
-                            order.status === "delivered"
-                              ? "bg-primary/10 text-primary"
-                              : order.status === "pending"
-                              ? "bg-secondary/30 text-secondary-foreground"
-                              : "bg-accent/20"
-                          }
-                        >
-                          {order.status}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Total Amount:</span>
-                          <p className="font-semibold">R{parseFloat(order.total as any).toFixed(2)}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Placed:</span>
-                          <p className="font-semibold">
-                            {order.createdAt ? new Date(order.createdAt as any).toLocaleDateString() : "N/A"}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Payment:</span>
-                          <p className="font-semibold">{order.paymentMethod || "N/A"}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Items:</span>
-                          <p className="font-semibold">
-                            {Array.isArray(order.items) ? (order.items as any[]).length : 0} products
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
 
           {/* Recurring Orders */}
           <TabsContent value="recurring" className="space-y-6">
