@@ -1197,9 +1197,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("PO notification error:", e);
       }
       res.status(201).json(po);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Create PO error:", err);
-      res.status(500).json({ message: "Failed to create purchase order" });
+      res.status(500).json({ message: "Failed to create purchase order", detail: err?.message || String(err) });
     }
   });
 

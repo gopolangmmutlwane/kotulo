@@ -237,7 +237,7 @@ export default function B2BOrdering() {
     });
     const data = await res.json();
     if (!res.ok) {
-      alert(`Failed to submit order: ${data.message}`);
+      alert(`Failed to submit order: ${data.message} — ${data.detail || ''}`);
       return;
     }
     setOrderItems({});
