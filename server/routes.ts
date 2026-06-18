@@ -1210,8 +1210,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!userId) return res.status(401).json({ message: "Unauthorized" });
       const user = await storage.getUser(userId);
       if (!user) return res.status(401).json({ message: "User not found" });
-      const buyerId = user.role === "admin" ? undefined : user.id;
-      const orders = await storage.getPurchaseOrders(buyerId);
+      if (user.role === "admin") {
+        const orders = await storage.getPurchaseOrders();
+        return res.json(orders);
+      }
+      if (user.role === "farmer") {
+        const farmer = await storage.getFarmerByUserId(user.id);
+        const orders = await storage.getPurchaseOrders(undefined, farmer?.id);
+        return res.json(orders);
+      }
+      const orders = await storage.getPurchaseOrders(user.id);
+      res.json(orders);
       res.json(orders);
     } catch (err) {
       res.status(500).json({ message: "Failed to fetch purchase orders" });

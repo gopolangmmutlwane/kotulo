@@ -54,6 +54,11 @@ export class DbStorage implements IStorage {
     const result = await db.select().from(schema.farmers).where(eq(schema.farmers.id, id));
     return result[0];
   }
+  async getFarmerByUserId(userId: string): Promise<Farmer | undefined> {
+    const result = await db.select().from(schema.farmers)
+      .where(eq(schema.farmers.userId, userId));
+    return result[0];
+  }
   async createFarmer(farmer: InsertFarmer): Promise<Farmer> {
     const result = await db.insert(schema.farmers).values(farmer).returning();
     return result[0];
@@ -127,10 +132,15 @@ export class DbStorage implements IStorage {
     const result = await db.insert(schema.purchaseOrders).values(po).returning();
     return result[0];
   }
-  async getPurchaseOrders(buyerId?: string): Promise<any[]> {
+  async getPurchaseOrders(buyerId?: string, supplierId?: string): Promise<any[]> {
     if (buyerId) {
       return db.select().from(schema.purchaseOrders)
         .where(eq(schema.purchaseOrders.buyerId, buyerId))
+        .orderBy(schema.purchaseOrders.createdAt);
+    }
+    if (supplierId) {
+      return db.select().from(schema.purchaseOrders)
+        .where(eq(schema.purchaseOrders.supplierId, supplierId))
         .orderBy(schema.purchaseOrders.createdAt);
     }
     return db.select().from(schema.purchaseOrders)

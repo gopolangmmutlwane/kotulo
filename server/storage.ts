@@ -20,6 +20,7 @@ export interface IStorage {
   // Farmers
   getFarmers(): Promise<Farmer[]>;
   getFarmer(id: string): Promise<Farmer | undefined>;
+  getFarmerByUserId(userId: string): Promise<Farmer | undefined>;
   createFarmer(farmer: InsertFarmer): Promise<Farmer>;
 
   // Products
@@ -47,7 +48,7 @@ export interface IStorage {
   setPlatformConfig(config: Record<string, any>): Promise<Record<string, any>>;
   // Purchase Orders
   createPurchaseOrder(po: any): Promise<any>;
-  getPurchaseOrders(buyerId?: string): Promise<any[]>;
+  getPurchaseOrders(buyerId?: string, supplierId?: string): Promise<any[]>;
   updatePurchaseOrder(id: string, updates: any): Promise<any>;
 }
 
