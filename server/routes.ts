@@ -1179,6 +1179,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         poNumber,
         buyerId: user.id,
         status: "draft",
+        deliveryDate: new Date(req.body.deliveryDate),
       });
       // Notify the supplier farmer
       try {
