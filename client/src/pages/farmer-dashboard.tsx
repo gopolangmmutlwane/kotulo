@@ -237,6 +237,26 @@ export default function FarmerDashboard() {
     },
   });
 
+  // Purchase orders directed at this farmer
+  const { data: purchaseOrders = [] } = useQuery<any[]>({
+    queryKey: ["/api/purchase-orders"],
+    enabled: isAuthenticated,
+    staleTime: 0,
+    refetchInterval: 30000,
+  });
+  const incomingPOs = purchaseOrders.filter((po: any) => po.supplierId === farmerProfile?.id);
+
+  const updatePOMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const res = await apiRequest("PATCH", `/api/purchase-orders/${id}/status`, { status });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/purchase-orders"] });
+      toast({ title: "Purchase order updated!" });
+    },
+  });
+
   if (isPending) {
     return (
       <div className="min-h-screen bg-background">
@@ -419,6 +439,67 @@ export default function FarmerDashboard() {
                     </div>
                   );
                 })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
+        {/* Incoming Purchase Orders */}
+        {incomingPOs.length > 0 && (
+          <Card className="border-l-4 border-l-secondary mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingCart className="w-5 h-5" />
+                Bulk Purchase Orders
+                <span className="bg-secondary text-secondary-foreground text-xs rounded-full px-2 py-0.5">
+                  {incomingPOs.length}
+                </span>
+              </CardTitle>
+              <CardDescription>Purchase orders from B2B buyers and vendors</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {incomingPOs.map((po: any) => (
+                  <div key={po.id} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <p className="font-semibold">{po.poNumber}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(po.createdAt).toLocaleDateString("en-ZA")} · {Array.isArray(po.items) ? po.items.length : 0} products
+                        </p>
+                      </div>
+                      <Badge variant={
+                        po.status === "confirmed" ? "default" :
+                        po.status === "cancelled" ? "destructive" : "outline"
+                      }>
+                        {po.status}
+                      </Badge>
+                    </div>
+                    <div className="space-y-1 mb-3">
+                      {(po.items || []).map((item: any, i: number) => (
+                        <div key={i} className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">{item.name} × {item.quantity} {item.unit}</span>
+                          <span className="font-medium">R{(parseFloat(item.price) * item.quantity).toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <p className="font-bold text-primary">Total: R{parseFloat(po.total).toFixed(2)}</p>
+                      {po.status === "draft" && (
+                        <div className="flex gap-2">
+                          <Button size="sm" className="bg-primary hover:bg-primary/90"
+                            onClick={() => updatePOMutation.mutate({ id: po.id, status: "confirmed" })}>
+                            Accept
+                          </Button>
+                          <Button size="sm" variant="destructive"
+                            onClick={() => updatePOMutation.mutate({ id: po.id, status: "cancelled" })}>
+                            Reject
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
